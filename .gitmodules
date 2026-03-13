@@ -1,0 +1,4 @@
+[submodule "containerregistry"]
+	path = packages/containerregistry/src/containerregistry
+	url = https://github.com/google/containerregistry
+	branch = master

@@ -1,0 +1,30 @@
+[build-system]
+requires = ['uv-build >=0.10.4,<0.11.0']
+build-backend = 'uv_build'
+
+[project]
+name = 'containerregistry'
+version = '0.0.38'
+readme = 'src/containerregistry/README.md'
+requires-python = '>=3.9,<3.12'
+license = 'Apache-2.0'
+dependencies = [
+    'httplib2 >=0.10.3',
+    'oauth2client >=3.0.0',
+    'six >=1.9.0',
+]
+
+[tool.uv.build-backend]
+wheel-exclude = [
+    '.git',
+    '.gitignore',
+    '.travis.yml',
+    '*.md',
+    '*.sh',
+    '*.yaml',
+    'BUILD.bazel',
+    'def.bzl',
+    'LICENSE',
+    'requirements.txt',
+    'WORKSPACE',
+]

@@ -1,0 +1,131 @@
+[build-system]
+requires = ['uv-build >=0.10.4,<0.11.0']
+build-backend = 'uv_build'
+
+[project]
+name = 'googlecloudsdk'
+version = '560.0.0'
+readme = 'README.md'
+requires-python = '>=3.9,<3.12'
+license = 'Apache-2.0'
+dependencies = [
+    'appengine-python-standard',
+    'google-api-python-client ==1.7.11',
+    'google-cloud-audit-log',
+    'google-cloud-bigquery-logging',
+    'google-cloud-iam >=2.15.0',
+    'google-crc32c',
+    'googledatastore',
+    'ipdb',
+    'ndg-httpsclient',
+    'protorpc',
+    'pudb',
+    'python-gflags',
+    'pytype',
+    'scikit-learn',
+    'scipy',
+    'sets',
+    'setuptools >=62.3.0,<82.0.0',
+    'tensorflow >=2.20.0',
+    'tink',
+    'unittest2',
+    'xgboost',
+
+    'google-apitools',
+    'argcomplete',
+    'attrs',
+    'backports.ssl_match_hostname',
+    'boto3 >=1.42.67',
+    'botocore >=1.42.67',
+    'cachetools',
+    'cattrs',
+    'certifi',
+    'chardet >=3.0.2,<6.0.0',
+    'containerregistry',
+    'contextlib2',
+    'python-dateutil',
+    'dnspython',
+    'docker',
+    'dotenv',
+    'dulwich',
+    'fasteners',
+    'frozendict',
+    'google',
+    'google-auth-httplib2',
+    'google-auth-oauthlib',
+    'grpcio-status',
+    'python-hcl2',
+    'httplib2',
+    'httplib2shim',
+    'idna',
+    'ipaddr',
+    'ipaddress',
+    'jmespath',
+    'jsonschema',
+    'kubernetes',
+    'lark',
+    'mako',
+    'markupsafe',
+    'monotonic',
+    'oauth2client',
+    'oauthlib',
+    'overrides',
+    'packaging',
+    'portpicker',
+    'prompt-toolkit',
+    'proto-plus',
+    'google-cloud-pubsublite',
+    'pyasn1',
+    'pyasn1-modules',
+    'pygments',
+    'pyparsing',
+    'pytz',
+    'pyu2f',
+    'requests',
+    'requests-oauthlib',
+    'rsa',
+    'ruamel.yaml',
+    's3transfer',
+    'six',
+    'pysocks',
+    'sqlparse',
+    'uritemplate',
+    'urllib3',
+    'wcwidth',
+    'websocket',
+    'win-inet-pton',
+    'pyyaml',
+]
+
+[tool.uv.build-backend]
+module-root = 'google-cloud-sdk/lib'
+# Ignore everything unrelated to type checking
+wheel-exclude = [
+    '_menu_.*s',
+    '.gitignore',
+    '*.html',
+    '*.json',
+    '*.md',
+    '*.proto',
+    '*.rst',
+    '*.tpl',
+    '*.yaml',
+    'app.yaml.template',
+    'detect',
+    'Dockerfile*',
+    'dockerignore',
+    'favicon.ico',
+    'generate_configs',
+    'install-node-version',
+    'LICENSE',
+    'package-json-install',
+    'python_environment_unpack.sh',
+    'xrt-import',
+]
+
+[tool.uv.sources]
+appengine-python-standard = { git = 'https://github.com/GoogleCloudPlatform/appengine-python-standard', branch = 'main' }
+containerregistry = { workspace = true }
+
+[tool.uv.workspace]
+members = ['packages/containerregistry']
