@@ -31,6 +31,7 @@ dependencies = [
     'unittest2',
     'xgboost',
 
+    'antlr-python3-runtime',
     'google-apitools',
     'argcomplete',
     'attrs',
@@ -123,7 +124,13 @@ wheel-exclude = [
     'xrt-import',
 ]
 
+[tool.uv]
+build-constraint-dependencies = [
+    'setuptools >=62.3.0,<82.0.0',
+]
+
 [tool.uv.sources]
+antlr-python3-runtime = { git = 'https://github.com/antlr/antlr3', branch = 'master', subdirectory = 'runtime/Python3' }
 appengine-python-standard = { git = 'https://github.com/GoogleCloudPlatform/appengine-python-standard', branch = 'main' }
 containerregistry = { workspace = true }
 
