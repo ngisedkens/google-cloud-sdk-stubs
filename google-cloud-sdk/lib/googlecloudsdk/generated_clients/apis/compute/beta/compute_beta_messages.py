@@ -5082,7 +5082,7 @@ class BackendService(_messages.Message):
       standard    HTTP response header field Endpoint-Load-Metrics. The
       reported    metrics to use for computing the weights are specified via
       thecustomMetrics field.        This field is applicable to either:
-      - A regional backend service with the service_protocol set to HTTP,
+      - A regional backend service with the service protocol set to HTTP,
       HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
       INTERNAL_MANAGED.        - A global backend service with the
       load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
@@ -5142,7 +5142,7 @@ class BackendService(_messages.Message):
       This field specifies parameters that control consistent hashing. This
       field is only applicable whenlocalityLbPolicy is set to MAGLEV
       orRING_HASH.  This field is applicable to either:        - A regional
-      backend service with the service_protocol set to HTTP,    HTTPS, HTTP2
+      backend service with the service protocol set to HTTP,    HTTPS, HTTP2
       or H2C, and load_balancing_scheme set to    INTERNAL_MANAGED.     - A
       global backend service with the    load_balancing_scheme set to
       INTERNAL_SELF_MANAGED.
@@ -5292,7 +5292,7 @@ class BackendService(_messages.Message):
       standard    HTTP response header field Endpoint-Load-Metrics. The
       reported    metrics to use for computing the weights are specified via
       thecustomMetrics field.        This field is applicable to either:
-      - A regional backend service with the service_protocol set to HTTP,
+      - A regional backend service with the service protocol set to HTTP,
       HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
       INTERNAL_MANAGED.        - A global backend service with the
       load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
@@ -5357,11 +5357,11 @@ class BackendService(_messages.Message):
       or managed services published using    Private Service Connect
       Applicable backend service types can be:        - A global backend
       service with the loadBalancingScheme set to    INTERNAL_SELF_MANAGED or
-      EXTERNAL_MANAGED.     - A regional backend    service with the
-      serviceProtocol set to HTTP, HTTPS, HTTP2 or H2C, and
-      loadBalancingScheme set to INTERNAL_MANAGED or EXTERNAL_MANAGED. Not
-      supported for Serverless NEGs.    Not supported when the backend service
-      is referenced by a URL map that is bound to target gRPC proxy that has
+      EXTERNAL_MANAGED.     - A regional backend    service with the service
+      protocol set to HTTP, HTTPS, HTTP2 or H2C, and    loadBalancingScheme
+      set to INTERNAL_MANAGED or EXTERNAL_MANAGED. Not    supported for
+      Serverless NEGs.    Not supported when the backend service is referenced
+      by a URL map that is bound to target gRPC proxy that has
       validateForProxyless field set to true.
     params: Input only. [Input Only] Additional params passed with the
       request, but not persisted as part of resource payload.
@@ -5552,7 +5552,7 @@ class BackendService(_messages.Message):
     response header field Endpoint-Load-Metrics. The reported    metrics to
     use for computing the weights are specified via thecustomMetrics field.
     This field is applicable to either:       - A regional backend service
-    with the service_protocol set to HTTP,       HTTPS, HTTP2 or H2C, and
+    with the service protocol set to HTTP,       HTTPS, HTTP2 or H2C, and
     load_balancing_scheme set to       INTERNAL_MANAGED.        - A global
     backend service with the       load_balancing_scheme set to
     INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or       EXTERNAL_MANAGED.
@@ -9845,6 +9845,37 @@ class CompositeHealthCheckAggregatedList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 7)
 
 
+class CompositeHealthCheckHealth(_messages.Message):
+  r"""Response message for RegionCompositeHealthChecks.GetHealth
+
+  Enums:
+    HealthStateValueValuesEnum: Health state of the CompositeHealthCheck.
+
+  Fields:
+    healthSources: Health sources and their corresponding health states.
+    healthState: Health state of the CompositeHealthCheck.
+    kind: Output only. [Output Only] Type of resource.
+      Alwayscompute#compositeHealthCheckHealth for the health of composite
+      health checks.
+  """
+
+  class HealthStateValueValuesEnum(_messages.Enum):
+    r"""Health state of the CompositeHealthCheck.
+
+    Values:
+      HEALTHY: <no description>
+      UNHEALTHY: <no description>
+      UNKNOWN: <no description>
+    """
+    HEALTHY = 0
+    UNHEALTHY = 1
+    UNKNOWN = 2
+
+  healthSources = _messages.MessageField('CompositeHealthChecksGetHealthResponseHealthSourceHealth', 1, repeated=True)
+  healthState = _messages.EnumField('HealthStateValueValuesEnum', 2)
+  kind = _messages.StringField(3, default='compute#compositeHealthCheckHealth')
+
+
 class CompositeHealthCheckList(_messages.Message):
   r"""A CompositeHealthCheckList object.
 
@@ -10010,6 +10041,34 @@ class CompositeHealthCheckList(_messages.Message):
   nextPageToken = _messages.StringField(4)
   selfLink = _messages.StringField(5)
   warning = _messages.MessageField('WarningValue', 6)
+
+
+class CompositeHealthChecksGetHealthResponseHealthSourceHealth(_messages.Message):
+  r"""A CompositeHealthChecksGetHealthResponseHealthSourceHealth object.
+
+  Enums:
+    HealthStateValueValuesEnum: Health state of the associated HealthSource
+      resource.
+
+  Fields:
+    healthState: Health state of the associated HealthSource resource.
+    source: Fully qualified URL of the associated HealthSource resource.
+  """
+
+  class HealthStateValueValuesEnum(_messages.Enum):
+    r"""Health state of the associated HealthSource resource.
+
+    Values:
+      HEALTHY: <no description>
+      UNHEALTHY: <no description>
+      UNKNOWN: <no description>
+    """
+    HEALTHY = 0
+    UNHEALTHY = 1
+    UNKNOWN = 2
+
+  healthState = _messages.EnumField('HealthStateValueValuesEnum', 1)
+  source = _messages.StringField(2)
 
 
 class CompositeHealthChecksScopedList(_messages.Message):
@@ -12810,6 +12869,8 @@ class ComputeDisksUpdateKmsKeyRequest(_messages.Message):
 
   Fields:
     disk: Name of the Disk resource, should conform to RFC1035.
+    diskUpdateKmsKeyRequest: A DiskUpdateKmsKeyRequest resource to be passed
+      as the request body.
     project: Project ID for this request.
     requestId: An optional request ID to identify requests. Specify a unique
       request ID so that if you must retry your request, the server will know
@@ -12825,9 +12886,10 @@ class ComputeDisksUpdateKmsKeyRequest(_messages.Message):
   """
 
   disk = _messages.StringField(1, required=True)
-  project = _messages.StringField(2, required=True)
-  requestId = _messages.StringField(3)
-  zone = _messages.StringField(4, required=True)
+  diskUpdateKmsKeyRequest = _messages.MessageField('DiskUpdateKmsKeyRequest', 2)
+  project = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+  zone = _messages.StringField(5, required=True)
 
 
 class ComputeDisksUpdateRequest(_messages.Message):
@@ -28267,6 +28329,21 @@ class ComputeRegionCompositeHealthChecksDeleteRequest(_messages.Message):
   requestId = _messages.StringField(4)
 
 
+class ComputeRegionCompositeHealthChecksGetHealthRequest(_messages.Message):
+  r"""A ComputeRegionCompositeHealthChecksGetHealthRequest object.
+
+  Fields:
+    compositeHealthCheck: Name of the CompositeHealthCheck resource to get
+      health for.
+    project: Name of the project scoping this request.
+    region: Name of the region scoping this request.
+  """
+
+  compositeHealthCheck = _messages.StringField(1, required=True)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
+
+
 class ComputeRegionCompositeHealthChecksGetRequest(_messages.Message):
   r"""A ComputeRegionCompositeHealthChecksGetRequest object.
 
@@ -28992,6 +29069,8 @@ class ComputeRegionDisksUpdateKmsKeyRequest(_messages.Message):
     disk: Name of the Disk resource, should conform to RFC1035.
     project: Project ID for this request.
     region: The name of the region for this request.
+    regionDiskUpdateKmsKeyRequest: A RegionDiskUpdateKmsKeyRequest resource to
+      be passed as the request body.
     requestId: An optional request ID to identify requests. Specify a unique
       request ID so that if you must retry your request, the server will know
       to ignore the request if it has already been completed.  For example,
@@ -29007,7 +29086,8 @@ class ComputeRegionDisksUpdateKmsKeyRequest(_messages.Message):
   disk = _messages.StringField(1, required=True)
   project = _messages.StringField(2, required=True)
   region = _messages.StringField(3, required=True)
-  requestId = _messages.StringField(4)
+  regionDiskUpdateKmsKeyRequest = _messages.MessageField('RegionDiskUpdateKmsKeyRequest', 4)
+  requestId = _messages.StringField(5)
 
 
 class ComputeRegionDisksUpdateRequest(_messages.Message):
@@ -29885,6 +29965,20 @@ class ComputeRegionHealthSourcesDeleteRequest(_messages.Message):
   project = _messages.StringField(2, required=True)
   region = _messages.StringField(3, required=True)
   requestId = _messages.StringField(4)
+
+
+class ComputeRegionHealthSourcesGetHealthRequest(_messages.Message):
+  r"""A ComputeRegionHealthSourcesGetHealthRequest object.
+
+  Fields:
+    healthSource: Name of the HealthSource resource to get health for.
+    project: Name of the project scoping this request.
+    region: Name of the region scoping this request.
+  """
+
+  healthSource = _messages.StringField(1, required=True)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
 
 
 class ComputeRegionHealthSourcesGetRequest(_messages.Message):
@@ -34287,6 +34381,8 @@ class ComputeRegionSnapshotsUpdateKmsKeyRequest(_messages.Message):
   Fields:
     project: Project ID for this request.
     region: Name of the region for this request.
+    regionSnapshotUpdateKmsKeyRequest: A RegionSnapshotUpdateKmsKeyRequest
+      resource to be passed as the request body.
     requestId: An optional request ID to identify requests. Specify a unique
       request ID so that if you must retry your request, the server will know
       to ignore the request if it has already been completed.  For example,
@@ -34303,8 +34399,9 @@ class ComputeRegionSnapshotsUpdateKmsKeyRequest(_messages.Message):
 
   project = _messages.StringField(1, required=True)
   region = _messages.StringField(2, required=True)
-  requestId = _messages.StringField(3)
-  snapshot = _messages.StringField(4, required=True)
+  regionSnapshotUpdateKmsKeyRequest = _messages.MessageField('RegionSnapshotUpdateKmsKeyRequest', 3)
+  requestId = _messages.StringField(4)
+  snapshot = _messages.StringField(5, required=True)
 
 
 class ComputeRegionSslCertificatesDeleteRequest(_messages.Message):
@@ -39411,11 +39508,14 @@ class ComputeSnapshotsUpdateKmsKeyRequest(_messages.Message):
       supported (00000000-0000-0000-0000-000000000000).
     snapshot: Name of the snapshot resource to update. Should conform to
       RFC1035.
+    snapshotUpdateKmsKeyRequest: A SnapshotUpdateKmsKeyRequest resource to be
+      passed as the request body.
   """
 
   project = _messages.StringField(1, required=True)
   requestId = _messages.StringField(2)
   snapshot = _messages.StringField(3, required=True)
+  snapshotUpdateKmsKeyRequest = _messages.MessageField('SnapshotUpdateKmsKeyRequest', 4)
 
 
 class ComputeSslCertificatesAggregatedListRequest(_messages.Message):
@@ -47021,6 +47121,21 @@ class DiskTypesScopedList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 2)
 
 
+class DiskUpdateKmsKeyRequest(_messages.Message):
+  r"""A DiskUpdateKmsKeyRequest object.
+
+  Fields:
+    kmsKeyName: Optional. The new KMS key to replace the current one on the
+      disk. If empty, the disk will be re-encrypted using the primary version
+      of the disk's current KMS key.  The KMS key can be provided in the
+      following formats:              -
+      projects/project_id/locations/location/keyRings/key_ring/cryptoKeys/key
+      Where project is the project ID or project number.
+  """
+
+  kmsKeyName = _messages.StringField(1)
+
+
 class DisksAddResourcePoliciesRequest(_messages.Message):
   r"""A DisksAddResourcePoliciesRequest object.
 
@@ -52971,8 +53086,9 @@ class GuestOsFeature(_messages.Message):
       following values:        - VIRTIO_SCSI_MULTIQUEUE    - WINDOWS    -
       MULTI_IP_SUBNET    - UEFI_COMPATIBLE    - GVNIC    - SEV_CAPABLE    -
       SUSPEND_RESUME_COMPATIBLE    - SEV_LIVE_MIGRATABLE_V2    -
-      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE   For
-      more information, see Enabling guest operating system features.
+      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE    -
+      CCA_CAPABLE   For more information, see Enabling guest operating system
+      features.
 
   Fields:
     type: The ID of a supported feature. To add multiple values, use commas to
@@ -52980,8 +53096,9 @@ class GuestOsFeature(_messages.Message):
       VIRTIO_SCSI_MULTIQUEUE    - WINDOWS    - MULTI_IP_SUBNET    -
       UEFI_COMPATIBLE    - GVNIC    - SEV_CAPABLE    -
       SUSPEND_RESUME_COMPATIBLE    - SEV_LIVE_MIGRATABLE_V2    -
-      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE   For
-      more information, see Enabling guest operating system features.
+      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE    -
+      CCA_CAPABLE   For more information, see Enabling guest operating system
+      features.
   """
 
   class TypeValueValuesEnum(_messages.Enum):
@@ -52990,8 +53107,8 @@ class GuestOsFeature(_messages.Message):
     VIRTIO_SCSI_MULTIQUEUE    - WINDOWS    - MULTI_IP_SUBNET    -
     UEFI_COMPATIBLE    - GVNIC    - SEV_CAPABLE    - SUSPEND_RESUME_COMPATIBLE
     - SEV_LIVE_MIGRATABLE_V2    - SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF
-    - SNP_SVSM_CAPABLE   For more information, see Enabling guest operating
-    system features.
+    - SNP_SVSM_CAPABLE    - CCA_CAPABLE   For more information, see Enabling
+    guest operating system features.
 
     Values:
       BARE_METAL_LINUX_COMPATIBLE: <no description>
@@ -55638,6 +55755,36 @@ class HealthSourceAggregatedList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 7)
 
 
+class HealthSourceHealth(_messages.Message):
+  r"""Response message for RegionHealthSources.GetHealth
+
+  Enums:
+    HealthStateValueValuesEnum: Health state of the HealthSource.
+
+  Fields:
+    healthState: Health state of the HealthSource.
+    kind: Output only. [Output Only] Type of resource.
+      Alwayscompute#healthSourceHealth for the health of health sources.
+    sources: Health state details of the sources.
+  """
+
+  class HealthStateValueValuesEnum(_messages.Enum):
+    r"""Health state of the HealthSource.
+
+    Values:
+      HEALTHY: <no description>
+      UNHEALTHY: <no description>
+      UNKNOWN: <no description>
+    """
+    HEALTHY = 0
+    UNHEALTHY = 1
+    UNKNOWN = 2
+
+  healthState = _messages.EnumField('HealthStateValueValuesEnum', 1)
+  kind = _messages.StringField(2, default='compute#healthSourceHealth')
+  sources = _messages.MessageField('HealthSourcesGetHealthResponseSourceInfo', 3, repeated=True)
+
+
 class HealthSourceList(_messages.Message):
   r"""A HealthSourceList object.
 
@@ -55803,6 +55950,41 @@ class HealthSourceList(_messages.Message):
   nextPageToken = _messages.StringField(4)
   selfLink = _messages.StringField(5)
   warning = _messages.MessageField('WarningValue', 6)
+
+
+class HealthSourcesGetHealthResponseSourceInfo(_messages.Message):
+  r"""A HealthSourcesGetHealthResponseSourceInfo object.
+
+  Fields:
+    backends: Represents an instance group or network endpoint group behind
+      the source backend service. Only used if the sourceType of the
+      regionHealthSource is BACKEND_SERVICE.
+    forwardingRule: Fully qualified URL of the forwarding rule associated with
+      the source resource if it is a L4ILB backend service.
+    source: Fully qualified URL of the associated source resource. This is
+      always a backend service URL.
+  """
+
+  backends = _messages.MessageField('HealthSourcesGetHealthResponseSourceInfoBackendInfo', 1, repeated=True)
+  forwardingRule = _messages.StringField(2)
+  source = _messages.StringField(3)
+
+
+class HealthSourcesGetHealthResponseSourceInfoBackendInfo(_messages.Message):
+  r"""A HealthSourcesGetHealthResponseSourceInfoBackendInfo object.
+
+  Fields:
+    endpointCount: Total number of endpoints when determining the health of
+      the regionHealthSource.
+    group: Fully qualified URL of an instance group or network endpoint group
+      behind the source backend service.
+    healthyEndpointCount: Number of endpoints considered healthy when
+      determining health of the regionHealthSource.
+  """
+
+  endpointCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  group = _messages.StringField(2)
+  healthyEndpointCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
 class HealthSourcesScopedList(_messages.Message):
@@ -58893,11 +59075,11 @@ class InstanceGroupManager(_messages.Message):
       hash symbols indicate the number of digits. For example, a base instance
       name of "vm-###" results in "vm-001" as a VM name. @pattern
       [a-z](([-a-z0-9]{0,57})|([-a-z0-9]{0,51}-#{1,10}(\\[[0-9]{1,10}\\])?))
-    creationTimestamp: Output only. [Output Only] The creation timestamp for
-      this managed instance group inRFC3339 text format.
-    currentActions: Output only. [Output Only] The list of instance actions
-      and the number of instances in this managed instance group that are
-      scheduled for each of those actions.
+    creationTimestamp: Output only. The creation timestamp for this managed
+      instance group inRFC3339 text format.
+    currentActions: Output only. The list of instance actions and the number
+      of instances in this managed instance group that are scheduled for each
+      of those actions.
     description: An optional description of this resource.
     distributionPolicy: Policy specifying the intended distribution of managed
       instances across zones in a regional managed instance group.
@@ -58909,13 +59091,12 @@ class InstanceGroupManager(_messages.Message):
       order to update the InstanceGroupManager, otherwise the request will
       fail with error412 conditionNotMet.  To see the latest fingerprint, make
       a get() request to retrieve an InstanceGroupManager.
-    id: Output only. [Output Only] A unique identifier for this resource type.
-      The server generates this identifier.
+    id: Output only. A unique identifier for this resource type. The server
+      generates this identifier.
     instanceFlexibilityPolicy: Instance flexibility allowing MIG to create VMs
       from multiple types of machines. Instance flexibility configuration on
       MIG overrides instance template configuration.
-    instanceGroup: Output only. [Output Only] The URL of the Instance Group
-      resource.
+    instanceGroup: Output only. The URL of the Instance Group resource.
     instanceLifecyclePolicy: The repair policy for this managed instance
       group.
     instanceTemplate: The URL of the instance template that is specified for
@@ -58924,7 +59105,7 @@ class InstanceGroupManager(_messages.Message):
       instances in the group do not change unless you run recreateInstances,
       runapplyUpdatesToInstances, or set the group'supdatePolicy.type to
       PROACTIVE.
-    kind: Output only. [Output Only] The resource type, which is
+    kind: Output only. The resource type, which is
       alwayscompute#instanceGroupManager for managed instance groups.
     listManagedInstancesResults: Pagination behavior of the
       listManagedInstances API method for this managed instance group.
@@ -58939,10 +59120,10 @@ class InstanceGroupManager(_messages.Message):
     region: Output only. [Output Only] The URL of theregion where the managed
       instance group resides (for regional resources).
     resourcePolicies: Resource policies for this managed instance group.
-    satisfiesPzi: Output only. [Output Only] Reserved for future use.
-    satisfiesPzs: Output only. [Output Only] Reserved for future use.
-    selfLink: Output only. [Output Only] The URL for this managed instance
-      group. The server defines this URL.
+    satisfiesPzi: Output only. Reserved for future use.
+    satisfiesPzs: Output only. Reserved for future use.
+    selfLink: Output only. The URL for this managed instance group. The server
+      defines this URL.
     serviceAccount: The service account to be used as credentials for all
       operations performed by the managed instance group on instances. The
       service accounts needs all permissions required to create and delete
@@ -58950,8 +59131,7 @@ class InstanceGroupManager(_messages.Message):
       {projectNumber}@cloudservices.gserviceaccount.com is used.
     standbyPolicy: Standby policy for stopped and suspended instances.
     statefulPolicy: Stateful configuration for this Instanced Group Manager
-    status: Output only. [Output Only] The status of this managed instance
-      group.
+    status: Output only. The status of this managed instance group.
     targetPools: The URLs for all TargetPool resources to which instances in
       theinstanceGroup field are added. The target pools automatically apply
       to all of the instances in the managed instance group.
@@ -58980,8 +59160,8 @@ class InstanceGroupManager(_messages.Message):
       one version must leave thetargetSize field unset. That version will be
       applied to all remaining instances. For more information, read
       aboutcanary updates.
-    zone: Output only. [Output Only] The URL of azone where the managed
-      instance group is located (for zonal resources).
+    zone: Output only. The URL of azone where the managed instance group is
+      located (for zonal resources).
   """
 
   class FailoverActionValueValuesEnum(_messages.Enum):
@@ -59053,56 +59233,49 @@ class InstanceGroupManagerActionsSummary(_messages.Message):
   r"""A InstanceGroupManagerActionsSummary object.
 
   Fields:
-    abandoning: Output only. [Output Only] The total number of instances in
-      the managed instance group that are scheduled to be abandoned.
-      Abandoning an instance removes it from the managed instance group
-      without deleting it.
-    adopting: [Output Only] The number of instances in the managed instance
+    abandoning: Output only. The total number of instances in the managed
+      instance group that are scheduled to be abandoned. Abandoning an
+      instance removes it from the managed instance group without deleting it.
+    adopting: Output only. The number of instances in the managed instance
       group that are scheduled to be adopted or are currently being adopted.
-    creating: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be created or are currently
-      being created. If the group fails to create any of these instances, it
-      tries again until it creates the instance successfully.  If you have
-      disabled creation retries, this field will not be populated; instead,
-      the creatingWithoutRetries field will be populated.
-    creatingWithoutRetries: Output only. [Output Only] The number of instances
-      that the managed instance group will attempt to create. The group
-      attempts to create each instance only once. If the group fails to create
-      any of these instances, it decreases the group's targetSize value
-      accordingly.
-    deleting: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be deleted or are currently
-      being deleted.
-    none: Output only. [Output Only] The number of instances in the managed
-      instance group that are running and have no scheduled actions.
-    recreating: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be recreated or are
-      currently being being recreated. Recreating an instance deletes the
-      existing root persistent disk and creates a new disk from the image that
-      is defined in the instance template.
-    refreshing: Output only. [Output Only] The number of instances in the
-      managed instance group that are being reconfigured with properties that
-      do not require a restart or a recreate action. For example, setting or
-      removing target pools for the instance.
-    restarting: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be restarted or are
-      currently being restarted.
-    resuming: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be resumed or are currently
-      being resumed.
-    starting: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be started or are currently
-      being started.
-    stopping: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be stopped or are currently
-      being stopped.
-    suspending: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be suspended or are
-      currently being suspended.
-    verifying: Output only. [Output Only] The number of instances in the
-      managed instance group that are being verified. See the
-      managedInstances[].currentAction property in the listManagedInstances
-      method documentation.
+    creating: Output only. The number of instances in the managed instance
+      group that are scheduled to be created or are currently being created.
+      If the group fails to create any of these instances, it tries again
+      until it creates the instance successfully.  If you have disabled
+      creation retries, this field will not be populated; instead, the
+      creatingWithoutRetries field will be populated.
+    creatingWithoutRetries: Output only. The number of instances that the
+      managed instance group will attempt to create. The group attempts to
+      create each instance only once. If the group fails to create any of
+      these instances, it decreases the group's targetSize value accordingly.
+    deleting: Output only. The number of instances in the managed instance
+      group that are scheduled to be deleted or are currently being deleted.
+    none: Output only. The number of instances in the managed instance group
+      that are running and have no scheduled actions.
+    recreating: Output only. The number of instances in the managed instance
+      group that are scheduled to be recreated or are currently being being
+      recreated. Recreating an instance deletes the existing root persistent
+      disk and creates a new disk from the image that is defined in the
+      instance template.
+    refreshing: Output only. The number of instances in the managed instance
+      group that are being reconfigured with properties that do not require a
+      restart or a recreate action. For example, setting or removing target
+      pools for the instance.
+    restarting: Output only. The number of instances in the managed instance
+      group that are scheduled to be restarted or are currently being
+      restarted.
+    resuming: Output only. The number of instances in the managed instance
+      group that are scheduled to be resumed or are currently being resumed.
+    starting: Output only. The number of instances in the managed instance
+      group that are scheduled to be started or are currently being started.
+    stopping: Output only. The number of instances in the managed instance
+      group that are scheduled to be stopped or are currently being stopped.
+    suspending: Output only. The number of instances in the managed instance
+      group that are scheduled to be suspended or are currently being
+      suspended.
+    verifying: Output only. The number of instances in the managed instance
+      group that are being verified. See the managedInstances[].currentAction
+      property in the listManagedInstances method documentation.
   """
 
   abandoning = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -60269,29 +60442,28 @@ class InstanceGroupManagerStatus(_messages.Message):
   r"""A InstanceGroupManagerStatus object.
 
   Fields:
-    allInstancesConfig: Output only. [Output only] Status of all-instances
-      configuration on the group.
-    appliedAcceleratorTopologies: Output only. [Output Only] The accelerator
-      topology applied to this MIG. Currently only one accelerator topology is
+    allInstancesConfig: Output only. Status of all-instances configuration on
+      the group.
+    appliedAcceleratorTopologies: Output only. The accelerator topology
+      applied to this MIG. Currently only one accelerator topology is
       supported.
-    autoscaler: Output only. [Output Only] The URL of theAutoscaler that
-      targets this instance group manager.
-    bulkInstanceOperation: Output only. [Output Only] The status of bulk
-      instance operation.
-    currentInstanceStatuses: Output only. [Output Only] The list of instance
-      statuses and the number of instances in this managed instance group that
-      have the status. Currently only shown for TPU MIGs
-    isStable: Output only. [Output Only] A bit indicating whether the managed
-      instance group is in a stable state. A stable state means that: none of
-      the instances in the managed instance group is currently undergoing any
-      type of change (for example, creation, restart, or deletion); no future
-      changes are scheduled for instances in the managed instance group; and
-      the managed instance group itself is not being modified.
-    stateful: Output only. [Output Only] Stateful status of the given Instance
-      Group Manager.
-    versionTarget: Output only. [Output Only] A status of consistency of
-      Instances' versions with their target version specified by version field
-      on Instance Group Manager.
+    autoscaler: Output only. The URL of theAutoscaler that targets this
+      instance group manager.
+    bulkInstanceOperation: Output only. The status of bulk instance operation.
+    currentInstanceStatuses: Output only. The list of instance statuses and
+      the number of instances in this managed instance group that have the
+      status. Currently only shown for TPU MIGs
+    isStable: Output only. A bit indicating whether the managed instance group
+      is in a stable state. A stable state means that: none of the instances
+      in the managed instance group is currently undergoing any type of change
+      (for example, creation, restart, or deletion); no future changes are
+      scheduled for instances in the managed instance group; and the managed
+      instance group itself is not being modified.
+    stateful: Output only. Stateful status of the given Instance Group
+      Manager.
+    versionTarget: Output only. A status of consistency of Instances' versions
+      with their target version specified by version field on Instance Group
+      Manager.
   """
 
   allInstancesConfig = _messages.MessageField('InstanceGroupManagerStatusAllInstancesConfig', 1)
@@ -60308,20 +60480,18 @@ class InstanceGroupManagerStatusAcceleratorTopology(_messages.Message):
   r"""A InstanceGroupManagerStatusAcceleratorTopology object.
 
   Enums:
-    StateValueValuesEnum: Output only. [Output Only] The state of the
-      accelerator topology.
+    StateValueValuesEnum: Output only. The state of the accelerator topology.
 
   Fields:
-    acceleratorTopology: Output only. [Output Only] Topology in the format of:
-      "16x16", "4x4x4", etc. The value is the same as configured in the
-      WorkloadPolicy.
-    state: Output only. [Output Only] The state of the accelerator topology.
-    stateDetails: Output only. [Output Only] The result of the latest
-      accelerator topology state check.
+    acceleratorTopology: Output only. Topology in the format of: "16x16",
+      "4x4x4", etc. The value is the same as configured in the WorkloadPolicy.
+    state: Output only. The state of the accelerator topology.
+    stateDetails: Output only. The result of the latest accelerator topology
+      state check.
   """
 
   class StateValueValuesEnum(_messages.Enum):
-    r"""Output only. [Output Only] The state of the accelerator topology.
+    r"""Output only. The state of the accelerator topology.
 
     Values:
       ACTIVATING: The accelerator topology is being activated.
@@ -60350,16 +60520,16 @@ class InstanceGroupManagerStatusAcceleratorTopologyAcceleratorTopologyStateDetai
   object.
 
   Messages:
-    ErrorValue: Output only. [Output Only] Encountered errors.
+    ErrorValue: Output only. Encountered errors.
 
   Fields:
-    error: Output only. [Output Only] Encountered errors.
-    timestamp: Output only. [Output Only] Timestamp is shown only if there is
-      an error. The field has // RFC3339 // text format.
+    error: Output only. Encountered errors.
+    timestamp: Output only. Timestamp is shown only if there is an error. The
+      field has // RFC3339 // text format.
   """
 
   class ErrorValue(_messages.Message):
-    r"""Output only. [Output Only] Encountered errors.
+    r"""Output only. Encountered errors.
 
     Messages:
       ErrorsValueListEntry: A ErrorsValueListEntry object.
@@ -60417,10 +60587,10 @@ class InstanceGroupManagerStatusAllInstancesConfig(_messages.Message):
   r"""A InstanceGroupManagerStatusAllInstancesConfig object.
 
   Fields:
-    currentRevision: Output only. [Output Only] Current all-instances
-      configuration revision. This value is in RFC3339 text format.
-    effective: Output only. [Output Only] A bit indicating whether this
-      configuration has been applied to all managed instances in the group.
+    currentRevision: Output only. Current all-instances configuration
+      revision. This value is in RFC3339 text format.
+    effective: Output only. A bit indicating whether this configuration has
+      been applied to all managed instances in the group.
   """
 
   currentRevision = _messages.StringField(1)
@@ -60432,10 +60602,10 @@ class InstanceGroupManagerStatusBulkInstanceOperation(_messages.Message):
   targetSizePolicy.mode is set to BULK.
 
   Fields:
-    inProgress: Output only. [Output Only] Informs whether bulk instance
-      operation is in progress.
-    lastProgressCheck: Output only. [Output Only] Information from the last
-      progress check of bulk instance operation.
+    inProgress: Output only. Informs whether bulk instance operation is in
+      progress.
+    lastProgressCheck: Output only. Information from the last progress check
+      of bulk instance operation.
   """
 
   inProgress = _messages.BooleanField(1)
@@ -60447,19 +60617,17 @@ class InstanceGroupManagerStatusBulkInstanceOperationLastProgressCheck(_messages
   object.
 
   Messages:
-    ErrorValue: Output only. [Output Only] Errors encountered during bulk
-      instance operation.
+    ErrorValue: Output only. Errors encountered during bulk instance
+      operation.
 
   Fields:
-    error: Output only. [Output Only] Errors encountered during bulk instance
-      operation.
-    timestamp: Output only. [Output Only] Timestamp of the last progress check
-      of bulk instance operation. Timestamp is in RFC3339 text format.
+    error: Output only. Errors encountered during bulk instance operation.
+    timestamp: Output only. Timestamp of the last progress check of bulk
+      instance operation. Timestamp is in RFC3339 text format.
   """
 
   class ErrorValue(_messages.Message):
-    r"""Output only. [Output Only] Errors encountered during bulk instance
-    operation.
+    r"""Output only. Errors encountered during bulk instance operation.
 
     Messages:
       ErrorsValueListEntry: A ErrorsValueListEntry object.
@@ -60520,38 +60688,38 @@ class InstanceGroupManagerStatusInstanceStatusSummary(_messages.Message):
   Currently only shown for TPU MIGs.
 
   Fields:
-    deprovisioning: Output only. [Output Only] The number of instances in the
-      managed instance group that have DEPROVISIONING status.
-    nonExistent: Output only. [Output Only] The number of instances that have
-      not been created yet or have been deleted. Includes only instances that
-      would be shown in the listManagedInstances method and not all instances
-      that have been deleted in the lifetime of the MIG. Does not include
-      FlexStart instances that are waiting for the resources availability,
-      they are considered as 'pending'.
-    pending: Output only. [Output Only] The number of instances in the managed
-      instance group that have PENDING status, that is FlexStart instances
-      that are waiting for resources. Instances that do not exist because of
-      the other reasons are counted as 'non_existent'.
-    pendingStop: Output only. [Output Only] The number of instances in the
-      managed instance group that have PENDING_STOP status.
-    provisioning: Output only. [Output Only] The number of instances in the
-      managed instance group that have PROVISIONING status.
-    repairing: Output only. [Output Only] The number of instances in the
-      managed instance group that have REPAIRING status.
-    running: Output only. [Output Only] The number of instances in the managed
-      instance group that have RUNNING status.
-    staging: Output only. [Output Only] The number of instances in the managed
-      instance group that have STAGING status.
-    stopped: Output only. [Output Only] The number of instances in the managed
-      instance group that have STOPPED status.
-    stopping: Output only. [Output Only] The number of instances in the
-      managed instance group that have STOPPING status.
-    suspended: Output only. [Output Only] The number of instances in the
-      managed instance group that have SUSPENDED status.
-    suspending: Output only. [Output Only] The number of instances in the
-      managed instance group that have SUSPENDING status.
-    terminated: Output only. [Output Only] The number of instances in the
-      managed instance group that have TERMINATED status.
+    deprovisioning: Output only. The number of instances in the managed
+      instance group that have DEPROVISIONING status.
+    nonExistent: Output only. The number of instances that have not been
+      created yet or have been deleted. Includes only instances that would be
+      shown in the listManagedInstances method and not all instances that have
+      been deleted in the lifetime of the MIG. Does not include FlexStart
+      instances that are waiting for the resources availability, they are
+      considered as 'pending'.
+    pending: Output only. The number of instances in the managed instance
+      group that have PENDING status, that is FlexStart instances that are
+      waiting for resources. Instances that do not exist because of the other
+      reasons are counted as 'non_existent'.
+    pendingStop: Output only. The number of instances in the managed instance
+      group that have PENDING_STOP status.
+    provisioning: Output only. The number of instances in the managed instance
+      group that have PROVISIONING status.
+    repairing: Output only. The number of instances in the managed instance
+      group that have REPAIRING status.
+    running: Output only. The number of instances in the managed instance
+      group that have RUNNING status.
+    staging: Output only. The number of instances in the managed instance
+      group that have STAGING status.
+    stopped: Output only. The number of instances in the managed instance
+      group that have STOPPED status.
+    stopping: Output only. The number of instances in the managed instance
+      group that have STOPPING status.
+    suspended: Output only. The number of instances in the managed instance
+      group that have SUSPENDED status.
+    suspending: Output only. The number of instances in the managed instance
+      group that have SUSPENDING status.
+    terminated: Output only. The number of instances in the managed instance
+      group that have TERMINATED status.
   """
 
   deprovisioning = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -60573,21 +60741,21 @@ class InstanceGroupManagerStatusStateful(_messages.Message):
   r"""A InstanceGroupManagerStatusStateful object.
 
   Fields:
-    hasStatefulConfig: Output only. [Output Only] A bit indicating whether the
-      managed instance group has stateful configuration, that is, if you have
+    hasStatefulConfig: Output only. A bit indicating whether the managed
+      instance group has stateful configuration, that is, if you have
       configured any items in a stateful policy or in per-instance configs.
       The group might report that it has no stateful configuration even when
       there is still some preserved state on a managed instance, for example,
       if you have deleted all PICs but not yet applied those deletions.
-    isStateful: Output only. [Output Only] A bit indicating whether the
-      managed instance group has stateful configuration, that is, if you have
-      configured any items in a stateful policy or in per-instance configs.
-      The group might report that it has no stateful configuration even when
-      there is still some preserved state on a managed instance, for example,
-      if you have deleted all PICs but not yet applied those deletions. This
-      field is deprecated in favor of has_stateful_config.
-    perInstanceConfigs: Output only. [Output Only] Status of per-instance
-      configurations on the instances.
+    isStateful: Output only. A bit indicating whether the managed instance
+      group has stateful configuration, that is, if you have configured any
+      items in a stateful policy or in per-instance configs. The group might
+      report that it has no stateful configuration even when there is still
+      some preserved state on a managed instance, for example, if you have
+      deleted all PICs but not yet applied those deletions. This field is
+      deprecated in favor of has_stateful_config.
+    perInstanceConfigs: Output only. Status of per-instance configurations on
+      the instances.
   """
 
   hasStatefulConfig = _messages.BooleanField(1)
@@ -60612,10 +60780,10 @@ class InstanceGroupManagerStatusVersionTarget(_messages.Message):
   r"""A InstanceGroupManagerStatusVersionTarget object.
 
   Fields:
-    isReached: Output only. [Output Only] A bit indicating whether version
-      target has been reached in this managed instance group, i.e. all
-      instances are in their target version. Instances' target version are
-      specified byversion field on Instance Group Manager.
+    isReached: Output only. A bit indicating whether version target has been
+      reached in this managed instance group, i.e. all instances are in their
+      target version. Instances' target version are specified byversion field
+      on Instance Group Manager.
   """
 
   isReached = _messages.BooleanField(1)
@@ -73354,6 +73522,8 @@ class NetworkAttachmentConnectedEndpoint(_messages.Message):
     projectIdOrNum: The project id or number of the interface to which the IP
       was assigned.
     secondaryIpCidrRanges: Alias IP ranges from the same subnetwork.
+    serviceClassId: The service class id of the producer service to which the
+      IP was assigned.
     status: The status of a connected endpoint to this network attachment.
     subnetwork: The subnetwork used to assign the IP to the producer instance
       network interface.
@@ -73387,9 +73557,10 @@ class NetworkAttachmentConnectedEndpoint(_messages.Message):
   ipv6Address = _messages.StringField(2)
   projectIdOrNum = _messages.StringField(3)
   secondaryIpCidrRanges = _messages.StringField(4, repeated=True)
-  status = _messages.EnumField('StatusValueValuesEnum', 5)
-  subnetwork = _messages.StringField(6)
-  subnetworkCidrRange = _messages.StringField(7)
+  serviceClassId = _messages.StringField(5)
+  status = _messages.EnumField('StatusValueValuesEnum', 6)
+  subnetwork = _messages.StringField(7)
+  subnetworkCidrRange = _messages.StringField(8)
 
 
 class NetworkAttachmentList(_messages.Message):
@@ -75584,6 +75755,10 @@ class NetworkInterface(_messages.Message):
     queueCount: The networking queue count that's specified by users for the
       network interface. Both Rx and Tx queues will be set to this number.
       It'll be empty if not specified by the users.
+    serviceClassId: Optional. Producer Service's Service class Id for the
+      region of this network interface. Can only be used with
+      network_attachment. It is not possible to use on its own however,
+      network_attachment can be used without service_class_id.
     stackType: The stack type for this network interface. To assign only IPv4
       addresses, use IPV4_ONLY. To assign both IPv4 and IPv6 addresses,
       useIPV4_IPV6. If not specified, IPV4_ONLY is used.  This field can be
@@ -75675,9 +75850,10 @@ class NetworkInterface(_messages.Message):
   nicType = _messages.EnumField('NicTypeValueValuesEnum', 16)
   parentNicName = _messages.StringField(17)
   queueCount = _messages.IntegerField(18, variant=_messages.Variant.INT32)
-  stackType = _messages.EnumField('StackTypeValueValuesEnum', 19)
-  subnetwork = _messages.StringField(20)
-  vlan = _messages.IntegerField(21, variant=_messages.Variant.INT32)
+  serviceClassId = _messages.StringField(19)
+  stackType = _messages.EnumField('StackTypeValueValuesEnum', 20)
+  subnetwork = _messages.StringField(21)
+  vlan = _messages.IntegerField(22, variant=_messages.Variant.INT32)
 
 
 class NetworkList(_messages.Message):
@@ -85942,6 +86118,21 @@ class RegionDiskTypeList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 6)
 
 
+class RegionDiskUpdateKmsKeyRequest(_messages.Message):
+  r"""A RegionDiskUpdateKmsKeyRequest object.
+
+  Fields:
+    kmsKeyName: Optional. The new KMS key to replace the current one on the
+      disk. If empty, the disk will be re-encrypted using the primary version
+      of the disk's current KMS key.  The KMS key can be provided in the
+      following formats:              -
+      projects/project_id/locations/location/keyRings/key_ring/cryptoKeys/key
+      Where project is the project ID or project number.
+  """
+
+  kmsKeyName = _messages.StringField(1)
+
+
 class RegionDisksAddResourcePoliciesRequest(_messages.Message):
   r"""A RegionDisksAddResourcePoliciesRequest object.
 
@@ -87532,6 +87723,20 @@ class RegionSetPolicyRequest(_messages.Message):
   bindings = _messages.MessageField('Binding', 1, repeated=True)
   etag = _messages.BytesField(2)
   policy = _messages.MessageField('Policy', 3)
+
+
+class RegionSnapshotUpdateKmsKeyRequest(_messages.Message):
+  r"""A RegionSnapshotUpdateKmsKeyRequest object.
+
+  Fields:
+    kmsKeyName: Optional. The new KMS key to replace the current one on the
+      snapshot. If empty, the snapshot will be re-encrypted using the primary
+      version of the snapshot's current KMS key.  The KMS key can be provided
+      in the following formats:              -
+      projects/project_id/locations/region/keyRings/region/cryptoKeys/key
+  """
+
+  kmsKeyName = _messages.StringField(1)
 
 
 class RegionTargetHttpsProxiesSetSslCertificatesRequest(_messages.Message):
@@ -99221,6 +99426,20 @@ class SnapshotSettingsStorageLocationSettingsStorageLocationPreference(_messages
   """
 
   name = _messages.StringField(1)
+
+
+class SnapshotUpdateKmsKeyRequest(_messages.Message):
+  r"""A SnapshotUpdateKmsKeyRequest object.
+
+  Fields:
+    kmsKeyName: Optional. The new KMS key to replace the current one on the
+      snapshot. If empty, the snapshot will be re-encrypted using the primary
+      version of the snapshot's current KMS key.  The KMS key can be provided
+      in the following formats:              -
+      projects/project_id/locations/region/keyRings/key_ring/cryptoKeys/key
+  """
+
+  kmsKeyName = _messages.StringField(1)
 
 
 class SnapshotsScopedList(_messages.Message):
