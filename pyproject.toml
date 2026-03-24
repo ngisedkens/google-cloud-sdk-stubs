@@ -1,10 +1,10 @@
 [build-system]
-requires = ['uv-build >=0.10.4,<0.11.0']
+requires = ['uv-build >=0.11.0,<0.12.0']
 build-backend = 'uv_build'
 
 [project]
 name = 'googlecloudsdk'
-version = '560.0.0'
+version = '561.0.0'
 readme = 'README.md'
 requires-python = '>=3.9,<3.12'
 license = 'Apache-2.0'
@@ -36,8 +36,8 @@ dependencies = [
     'argcomplete',
     'attrs',
     'backports.ssl_match_hostname',
-    'boto3 >=1.42.67',
-    'botocore >=1.42.67',
+    'boto3 >=1.42.74',
+    'botocore >=1.42.74',
     'cachetools',
     'cattrs',
     'certifi',
