@@ -3833,6 +3833,10 @@ class BackendBucket(_messages.Message):
       cannot be a dash.
     params: Input only. [Input Only] Additional params passed with the
       request, but not persisted as part of resource payload.
+    region: Output only. [Output Only] URL of the region where the regional
+      backend bucket resides. This field is not applicable to global backend
+      buckets. You must specify this field as part of the HTTP request URL. It
+      is not settable as a field in the request body.
     selfLink: [Output Only] Server-defined URL for the resource.
     usedBy: Output only. [Output Only] List of resources referencing that
       backend bucket.
@@ -3858,10 +3862,13 @@ class BackendBucket(_messages.Message):
     application external load balancers, or both.
 
     Values:
+      EXTERNAL_MANAGED: Signifies that this will be used for regional external
+        Application Load Balancers.
       INTERNAL_MANAGED: Signifies that this will be used for internal
         Application Load Balancers.
     """
-    INTERNAL_MANAGED = 0
+    EXTERNAL_MANAGED = 0
+    INTERNAL_MANAGED = 1
 
   bucketName = _messages.StringField(1)
   cdnPolicy = _messages.MessageField('BackendBucketCdnPolicy', 2)
@@ -3876,8 +3883,201 @@ class BackendBucket(_messages.Message):
   loadBalancingScheme = _messages.EnumField('LoadBalancingSchemeValueValuesEnum', 11)
   name = _messages.StringField(12)
   params = _messages.MessageField('BackendBucketParams', 13)
-  selfLink = _messages.StringField(14)
-  usedBy = _messages.MessageField('BackendBucketUsedBy', 15, repeated=True)
+  region = _messages.StringField(14)
+  selfLink = _messages.StringField(15)
+  usedBy = _messages.MessageField('BackendBucketUsedBy', 16, repeated=True)
+
+
+class BackendBucketAggregatedList(_messages.Message):
+  r"""A BackendBucketAggregatedList object.
+
+  Messages:
+    ItemsValue: A list of BackendBucketsScopedList resources.
+    WarningValue: [Output Only] Informational warning message.
+
+  Fields:
+    id: [Output Only] Unique identifier for the resource; defined by the
+      server.
+    items: A list of BackendBucketsScopedList resources.
+    kind: Output only. Type of resource.
+    nextPageToken: [Output Only] This token allows you to get the next page of
+      results for list requests. If the number of results is larger
+      thanmaxResults, use the nextPageToken as a value for the query parameter
+      pageToken in the next list request. Subsequent list requests will have
+      their own nextPageToken to continue paging through the results.
+    selfLink: Output only. [Output Only] Server-defined URL for this resource.
+    warning: [Output Only] Informational warning message.
+  """
+
+  @encoding.MapUnrecognizedFields('additionalProperties')
+  class ItemsValue(_messages.Message):
+    r"""A list of BackendBucketsScopedList resources.
+
+    Messages:
+      AdditionalProperty: An additional property for a ItemsValue object.
+
+    Fields:
+      additionalProperties: Name of the scope containing this set of
+        BackendBuckets.
+    """
+
+    class AdditionalProperty(_messages.Message):
+      r"""An additional property for a ItemsValue object.
+
+      Fields:
+        key: Name of the additional property.
+        value: A BackendBucketsScopedList attribute.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.MessageField('BackendBucketsScopedList', 2)
+
+    additionalProperties = _messages.MessageField('AdditionalProperty', 1, repeated=True)
+
+  class WarningValue(_messages.Message):
+    r"""[Output Only] Informational warning message.
+
+    Enums:
+      CodeValueValuesEnum: [Output Only] A warning code, if applicable. For
+        example, Compute Engine returns NO_RESULTS_ON_PAGE if there are no
+        results in the response.
+
+    Messages:
+      DataValueListEntry: A DataValueListEntry object.
+
+    Fields:
+      code: [Output Only] A warning code, if applicable. For example, Compute
+        Engine returns NO_RESULTS_ON_PAGE if there are no results in the
+        response.
+      data: [Output Only] Metadata about this warning in key: value format.
+        For example:  "data": [   {    "key": "scope",    "value": "zones/us-
+        east1-d"   }
+      message: [Output Only] A human-readable description of the warning code.
+    """
+
+    class CodeValueValuesEnum(_messages.Enum):
+      r"""[Output Only] A warning code, if applicable. For example, Compute
+      Engine returns NO_RESULTS_ON_PAGE if there are no results in the
+      response.
+
+      Values:
+        CLEANUP_FAILED: Warning about failed cleanup of transient changes made
+          by a failed operation.
+        DEPRECATED_RESOURCE_USED: A link to a deprecated resource was created.
+        DEPRECATED_TYPE_USED: When deploying and at least one of the resources
+          has a type marked as deprecated
+        DISK_SIZE_LARGER_THAN_IMAGE_SIZE: The user created a boot disk that is
+          larger than image size.
+        EXPERIMENTAL_TYPE_USED: When deploying and at least one of the
+          resources has a type marked as experimental
+        EXTERNAL_API_WARNING: Warning that is present in an external api call
+        FIELD_VALUE_OVERRIDEN: Warning that value of a field has been
+          overridden. Deprecated unused field.
+        INJECTED_KERNELS_DEPRECATED: The operation involved use of an injected
+          kernel, which is deprecated.
+        INVALID_HEALTH_CHECK_FOR_DYNAMIC_WIEGHTED_LB: A WEIGHTED_MAGLEV
+          backend service is associated with a health check that is not of
+          type HTTP/HTTPS/HTTP2.
+        LARGE_DEPLOYMENT_WARNING: When deploying a deployment with a
+          exceedingly large number of resources
+        LIST_OVERHEAD_QUOTA_EXCEED: Resource can't be retrieved due to list
+          overhead quota exceed which captures the amount of resources
+          filtered out by user-defined list filter.
+        MISSING_TYPE_DEPENDENCY: A resource depends on a missing type
+        NEXT_HOP_ADDRESS_NOT_ASSIGNED: The route's nextHopIp address is not
+          assigned to an instance on the network.
+        NEXT_HOP_CANNOT_IP_FORWARD: The route's next hop instance cannot ip
+          forward.
+        NEXT_HOP_INSTANCE_HAS_NO_IPV6_INTERFACE: The route's nextHopInstance
+          URL refers to an instance that does not have an ipv6 interface on
+          the same network as the route.
+        NEXT_HOP_INSTANCE_NOT_FOUND: The route's nextHopInstance URL refers to
+          an instance that does not exist.
+        NEXT_HOP_INSTANCE_NOT_ON_NETWORK: The route's nextHopInstance URL
+          refers to an instance that is not on the same network as the route.
+        NEXT_HOP_NOT_RUNNING: The route's next hop instance does not have a
+          status of RUNNING.
+        NOT_CRITICAL_ERROR: Error which is not critical. We decided to
+          continue the process despite the mentioned error.
+        NO_RESULTS_ON_PAGE: No results are present on a particular list page.
+        PARTIAL_SUCCESS: Success is reported, but some results may be missing
+          due to errors
+        QUOTA_INFO_UNAVAILABLE: Quota information is not available to client
+          requests (e.g: regions.list).
+        REQUIRED_TOS_AGREEMENT: The user attempted to use a resource that
+          requires a TOS they have not accepted.
+        RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING: Warning that a resource is
+          in use.
+        RESOURCE_NOT_DELETED: One or more of the resources set to auto-delete
+          could not be deleted because they were in use.
+        SCHEMA_VALIDATION_IGNORED: When a resource schema validation is
+          ignored.
+        SINGLE_INSTANCE_PROPERTY_TEMPLATE: Instance template used in instance
+          group manager is valid as such, but its application does not make a
+          lot of sense, because it allows only single instance in instance
+          group.
+        UNDECLARED_PROPERTIES: When undeclared properties in the schema are
+          present
+        UNREACHABLE: A given scope cannot be reached.
+      """
+      CLEANUP_FAILED = 0
+      DEPRECATED_RESOURCE_USED = 1
+      DEPRECATED_TYPE_USED = 2
+      DISK_SIZE_LARGER_THAN_IMAGE_SIZE = 3
+      EXPERIMENTAL_TYPE_USED = 4
+      EXTERNAL_API_WARNING = 5
+      FIELD_VALUE_OVERRIDEN = 6
+      INJECTED_KERNELS_DEPRECATED = 7
+      INVALID_HEALTH_CHECK_FOR_DYNAMIC_WIEGHTED_LB = 8
+      LARGE_DEPLOYMENT_WARNING = 9
+      LIST_OVERHEAD_QUOTA_EXCEED = 10
+      MISSING_TYPE_DEPENDENCY = 11
+      NEXT_HOP_ADDRESS_NOT_ASSIGNED = 12
+      NEXT_HOP_CANNOT_IP_FORWARD = 13
+      NEXT_HOP_INSTANCE_HAS_NO_IPV6_INTERFACE = 14
+      NEXT_HOP_INSTANCE_NOT_FOUND = 15
+      NEXT_HOP_INSTANCE_NOT_ON_NETWORK = 16
+      NEXT_HOP_NOT_RUNNING = 17
+      NOT_CRITICAL_ERROR = 18
+      NO_RESULTS_ON_PAGE = 19
+      PARTIAL_SUCCESS = 20
+      QUOTA_INFO_UNAVAILABLE = 21
+      REQUIRED_TOS_AGREEMENT = 22
+      RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING = 23
+      RESOURCE_NOT_DELETED = 24
+      SCHEMA_VALIDATION_IGNORED = 25
+      SINGLE_INSTANCE_PROPERTY_TEMPLATE = 26
+      UNDECLARED_PROPERTIES = 27
+      UNREACHABLE = 28
+
+    class DataValueListEntry(_messages.Message):
+      r"""A DataValueListEntry object.
+
+      Fields:
+        key: [Output Only] A key that provides more detail on the warning
+          being returned. For example, for warnings where there are no results
+          in a list request for a particular zone, this key might be scope and
+          the key value might be the zone name. Other examples might be a key
+          indicating a deprecated resource and a suggested replacement, or a
+          warning about invalid network settings (for example, if an instance
+          attempts to perform IP forwarding but is not enabled for IP
+          forwarding).
+        value: [Output Only] A warning data value corresponding to the key.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    code = _messages.EnumField('CodeValueValuesEnum', 1)
+    data = _messages.MessageField('DataValueListEntry', 2, repeated=True)
+    message = _messages.StringField(3)
+
+  id = _messages.StringField(1)
+  items = _messages.MessageField('ItemsValue', 2)
+  kind = _messages.StringField(3, default='compute#backendBucketAggregatedList')
+  nextPageToken = _messages.StringField(4)
+  selfLink = _messages.StringField(5)
+  warning = _messages.MessageField('WarningValue', 6)
 
 
 class BackendBucketCdnPolicy(_messages.Message):
@@ -4255,6 +4455,174 @@ class BackendBucketList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 6)
 
 
+class BackendBucketListUsable(_messages.Message):
+  r"""A BackendBucketListUsable object.
+
+  Messages:
+    WarningValue: [Output Only] Informational warning message.
+
+  Fields:
+    id: [Output Only] Unique identifier for the resource; defined by the
+      server.
+    items: A list of BackendBucket resources.
+    kind: Output only. [Output Only] Type of resource.
+      Alwayscompute#usableBackendBucketList for lists of usable backend
+      buckets.
+    nextPageToken: [Output Only] This token allows you to get the next page of
+      results for list requests. If the number of results is larger
+      thanmaxResults, use the nextPageToken as a value for the query parameter
+      pageToken in the next list request. Subsequent list requests will have
+      their own nextPageToken to continue paging through the results.
+    selfLink: Output only. [Output Only] Server-defined URL for this resource.
+    warning: [Output Only] Informational warning message.
+  """
+
+  class WarningValue(_messages.Message):
+    r"""[Output Only] Informational warning message.
+
+    Enums:
+      CodeValueValuesEnum: [Output Only] A warning code, if applicable. For
+        example, Compute Engine returns NO_RESULTS_ON_PAGE if there are no
+        results in the response.
+
+    Messages:
+      DataValueListEntry: A DataValueListEntry object.
+
+    Fields:
+      code: [Output Only] A warning code, if applicable. For example, Compute
+        Engine returns NO_RESULTS_ON_PAGE if there are no results in the
+        response.
+      data: [Output Only] Metadata about this warning in key: value format.
+        For example:  "data": [   {    "key": "scope",    "value": "zones/us-
+        east1-d"   }
+      message: [Output Only] A human-readable description of the warning code.
+    """
+
+    class CodeValueValuesEnum(_messages.Enum):
+      r"""[Output Only] A warning code, if applicable. For example, Compute
+      Engine returns NO_RESULTS_ON_PAGE if there are no results in the
+      response.
+
+      Values:
+        CLEANUP_FAILED: Warning about failed cleanup of transient changes made
+          by a failed operation.
+        DEPRECATED_RESOURCE_USED: A link to a deprecated resource was created.
+        DEPRECATED_TYPE_USED: When deploying and at least one of the resources
+          has a type marked as deprecated
+        DISK_SIZE_LARGER_THAN_IMAGE_SIZE: The user created a boot disk that is
+          larger than image size.
+        EXPERIMENTAL_TYPE_USED: When deploying and at least one of the
+          resources has a type marked as experimental
+        EXTERNAL_API_WARNING: Warning that is present in an external api call
+        FIELD_VALUE_OVERRIDEN: Warning that value of a field has been
+          overridden. Deprecated unused field.
+        INJECTED_KERNELS_DEPRECATED: The operation involved use of an injected
+          kernel, which is deprecated.
+        INVALID_HEALTH_CHECK_FOR_DYNAMIC_WIEGHTED_LB: A WEIGHTED_MAGLEV
+          backend service is associated with a health check that is not of
+          type HTTP/HTTPS/HTTP2.
+        LARGE_DEPLOYMENT_WARNING: When deploying a deployment with a
+          exceedingly large number of resources
+        LIST_OVERHEAD_QUOTA_EXCEED: Resource can't be retrieved due to list
+          overhead quota exceed which captures the amount of resources
+          filtered out by user-defined list filter.
+        MISSING_TYPE_DEPENDENCY: A resource depends on a missing type
+        NEXT_HOP_ADDRESS_NOT_ASSIGNED: The route's nextHopIp address is not
+          assigned to an instance on the network.
+        NEXT_HOP_CANNOT_IP_FORWARD: The route's next hop instance cannot ip
+          forward.
+        NEXT_HOP_INSTANCE_HAS_NO_IPV6_INTERFACE: The route's nextHopInstance
+          URL refers to an instance that does not have an ipv6 interface on
+          the same network as the route.
+        NEXT_HOP_INSTANCE_NOT_FOUND: The route's nextHopInstance URL refers to
+          an instance that does not exist.
+        NEXT_HOP_INSTANCE_NOT_ON_NETWORK: The route's nextHopInstance URL
+          refers to an instance that is not on the same network as the route.
+        NEXT_HOP_NOT_RUNNING: The route's next hop instance does not have a
+          status of RUNNING.
+        NOT_CRITICAL_ERROR: Error which is not critical. We decided to
+          continue the process despite the mentioned error.
+        NO_RESULTS_ON_PAGE: No results are present on a particular list page.
+        PARTIAL_SUCCESS: Success is reported, but some results may be missing
+          due to errors
+        QUOTA_INFO_UNAVAILABLE: Quota information is not available to client
+          requests (e.g: regions.list).
+        REQUIRED_TOS_AGREEMENT: The user attempted to use a resource that
+          requires a TOS they have not accepted.
+        RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING: Warning that a resource is
+          in use.
+        RESOURCE_NOT_DELETED: One or more of the resources set to auto-delete
+          could not be deleted because they were in use.
+        SCHEMA_VALIDATION_IGNORED: When a resource schema validation is
+          ignored.
+        SINGLE_INSTANCE_PROPERTY_TEMPLATE: Instance template used in instance
+          group manager is valid as such, but its application does not make a
+          lot of sense, because it allows only single instance in instance
+          group.
+        UNDECLARED_PROPERTIES: When undeclared properties in the schema are
+          present
+        UNREACHABLE: A given scope cannot be reached.
+      """
+      CLEANUP_FAILED = 0
+      DEPRECATED_RESOURCE_USED = 1
+      DEPRECATED_TYPE_USED = 2
+      DISK_SIZE_LARGER_THAN_IMAGE_SIZE = 3
+      EXPERIMENTAL_TYPE_USED = 4
+      EXTERNAL_API_WARNING = 5
+      FIELD_VALUE_OVERRIDEN = 6
+      INJECTED_KERNELS_DEPRECATED = 7
+      INVALID_HEALTH_CHECK_FOR_DYNAMIC_WIEGHTED_LB = 8
+      LARGE_DEPLOYMENT_WARNING = 9
+      LIST_OVERHEAD_QUOTA_EXCEED = 10
+      MISSING_TYPE_DEPENDENCY = 11
+      NEXT_HOP_ADDRESS_NOT_ASSIGNED = 12
+      NEXT_HOP_CANNOT_IP_FORWARD = 13
+      NEXT_HOP_INSTANCE_HAS_NO_IPV6_INTERFACE = 14
+      NEXT_HOP_INSTANCE_NOT_FOUND = 15
+      NEXT_HOP_INSTANCE_NOT_ON_NETWORK = 16
+      NEXT_HOP_NOT_RUNNING = 17
+      NOT_CRITICAL_ERROR = 18
+      NO_RESULTS_ON_PAGE = 19
+      PARTIAL_SUCCESS = 20
+      QUOTA_INFO_UNAVAILABLE = 21
+      REQUIRED_TOS_AGREEMENT = 22
+      RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING = 23
+      RESOURCE_NOT_DELETED = 24
+      SCHEMA_VALIDATION_IGNORED = 25
+      SINGLE_INSTANCE_PROPERTY_TEMPLATE = 26
+      UNDECLARED_PROPERTIES = 27
+      UNREACHABLE = 28
+
+    class DataValueListEntry(_messages.Message):
+      r"""A DataValueListEntry object.
+
+      Fields:
+        key: [Output Only] A key that provides more detail on the warning
+          being returned. For example, for warnings where there are no results
+          in a list request for a particular zone, this key might be scope and
+          the key value might be the zone name. Other examples might be a key
+          indicating a deprecated resource and a suggested replacement, or a
+          warning about invalid network settings (for example, if an instance
+          attempts to perform IP forwarding but is not enabled for IP
+          forwarding).
+        value: [Output Only] A warning data value corresponding to the key.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    code = _messages.EnumField('CodeValueValuesEnum', 1)
+    data = _messages.MessageField('DataValueListEntry', 2, repeated=True)
+    message = _messages.StringField(3)
+
+  id = _messages.StringField(1)
+  items = _messages.MessageField('BackendBucket', 2, repeated=True)
+  kind = _messages.StringField(3, default='compute#usableBackendBucketList')
+  nextPageToken = _messages.StringField(4)
+  selfLink = _messages.StringField(5)
+  warning = _messages.MessageField('WarningValue', 6)
+
+
 class BackendBucketParams(_messages.Message):
   r"""Additional Backend Bucket parameters.
 
@@ -4327,6 +4695,162 @@ class BackendBucketUsedBy(_messages.Message):
   """
 
   reference = _messages.StringField(1)
+
+
+class BackendBucketsScopedList(_messages.Message):
+  r"""A BackendBucketsScopedList object.
+
+  Messages:
+    WarningValue: Informational warning which replaces the list of backend
+      services when the list is empty.
+
+  Fields:
+    backendBuckets: A list of BackendBuckets contained in this scope.
+    warning: Informational warning which replaces the list of backend services
+      when the list is empty.
+  """
+
+  class WarningValue(_messages.Message):
+    r"""Informational warning which replaces the list of backend services when
+    the list is empty.
+
+    Enums:
+      CodeValueValuesEnum: [Output Only] A warning code, if applicable. For
+        example, Compute Engine returns NO_RESULTS_ON_PAGE if there are no
+        results in the response.
+
+    Messages:
+      DataValueListEntry: A DataValueListEntry object.
+
+    Fields:
+      code: [Output Only] A warning code, if applicable. For example, Compute
+        Engine returns NO_RESULTS_ON_PAGE if there are no results in the
+        response.
+      data: [Output Only] Metadata about this warning in key: value format.
+        For example:  "data": [   {    "key": "scope",    "value": "zones/us-
+        east1-d"   }
+      message: [Output Only] A human-readable description of the warning code.
+    """
+
+    class CodeValueValuesEnum(_messages.Enum):
+      r"""[Output Only] A warning code, if applicable. For example, Compute
+      Engine returns NO_RESULTS_ON_PAGE if there are no results in the
+      response.
+
+      Values:
+        CLEANUP_FAILED: Warning about failed cleanup of transient changes made
+          by a failed operation.
+        DEPRECATED_RESOURCE_USED: A link to a deprecated resource was created.
+        DEPRECATED_TYPE_USED: When deploying and at least one of the resources
+          has a type marked as deprecated
+        DISK_SIZE_LARGER_THAN_IMAGE_SIZE: The user created a boot disk that is
+          larger than image size.
+        EXPERIMENTAL_TYPE_USED: When deploying and at least one of the
+          resources has a type marked as experimental
+        EXTERNAL_API_WARNING: Warning that is present in an external api call
+        FIELD_VALUE_OVERRIDEN: Warning that value of a field has been
+          overridden. Deprecated unused field.
+        INJECTED_KERNELS_DEPRECATED: The operation involved use of an injected
+          kernel, which is deprecated.
+        INVALID_HEALTH_CHECK_FOR_DYNAMIC_WIEGHTED_LB: A WEIGHTED_MAGLEV
+          backend service is associated with a health check that is not of
+          type HTTP/HTTPS/HTTP2.
+        LARGE_DEPLOYMENT_WARNING: When deploying a deployment with a
+          exceedingly large number of resources
+        LIST_OVERHEAD_QUOTA_EXCEED: Resource can't be retrieved due to list
+          overhead quota exceed which captures the amount of resources
+          filtered out by user-defined list filter.
+        MISSING_TYPE_DEPENDENCY: A resource depends on a missing type
+        NEXT_HOP_ADDRESS_NOT_ASSIGNED: The route's nextHopIp address is not
+          assigned to an instance on the network.
+        NEXT_HOP_CANNOT_IP_FORWARD: The route's next hop instance cannot ip
+          forward.
+        NEXT_HOP_INSTANCE_HAS_NO_IPV6_INTERFACE: The route's nextHopInstance
+          URL refers to an instance that does not have an ipv6 interface on
+          the same network as the route.
+        NEXT_HOP_INSTANCE_NOT_FOUND: The route's nextHopInstance URL refers to
+          an instance that does not exist.
+        NEXT_HOP_INSTANCE_NOT_ON_NETWORK: The route's nextHopInstance URL
+          refers to an instance that is not on the same network as the route.
+        NEXT_HOP_NOT_RUNNING: The route's next hop instance does not have a
+          status of RUNNING.
+        NOT_CRITICAL_ERROR: Error which is not critical. We decided to
+          continue the process despite the mentioned error.
+        NO_RESULTS_ON_PAGE: No results are present on a particular list page.
+        PARTIAL_SUCCESS: Success is reported, but some results may be missing
+          due to errors
+        QUOTA_INFO_UNAVAILABLE: Quota information is not available to client
+          requests (e.g: regions.list).
+        REQUIRED_TOS_AGREEMENT: The user attempted to use a resource that
+          requires a TOS they have not accepted.
+        RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING: Warning that a resource is
+          in use.
+        RESOURCE_NOT_DELETED: One or more of the resources set to auto-delete
+          could not be deleted because they were in use.
+        SCHEMA_VALIDATION_IGNORED: When a resource schema validation is
+          ignored.
+        SINGLE_INSTANCE_PROPERTY_TEMPLATE: Instance template used in instance
+          group manager is valid as such, but its application does not make a
+          lot of sense, because it allows only single instance in instance
+          group.
+        UNDECLARED_PROPERTIES: When undeclared properties in the schema are
+          present
+        UNREACHABLE: A given scope cannot be reached.
+      """
+      CLEANUP_FAILED = 0
+      DEPRECATED_RESOURCE_USED = 1
+      DEPRECATED_TYPE_USED = 2
+      DISK_SIZE_LARGER_THAN_IMAGE_SIZE = 3
+      EXPERIMENTAL_TYPE_USED = 4
+      EXTERNAL_API_WARNING = 5
+      FIELD_VALUE_OVERRIDEN = 6
+      INJECTED_KERNELS_DEPRECATED = 7
+      INVALID_HEALTH_CHECK_FOR_DYNAMIC_WIEGHTED_LB = 8
+      LARGE_DEPLOYMENT_WARNING = 9
+      LIST_OVERHEAD_QUOTA_EXCEED = 10
+      MISSING_TYPE_DEPENDENCY = 11
+      NEXT_HOP_ADDRESS_NOT_ASSIGNED = 12
+      NEXT_HOP_CANNOT_IP_FORWARD = 13
+      NEXT_HOP_INSTANCE_HAS_NO_IPV6_INTERFACE = 14
+      NEXT_HOP_INSTANCE_NOT_FOUND = 15
+      NEXT_HOP_INSTANCE_NOT_ON_NETWORK = 16
+      NEXT_HOP_NOT_RUNNING = 17
+      NOT_CRITICAL_ERROR = 18
+      NO_RESULTS_ON_PAGE = 19
+      PARTIAL_SUCCESS = 20
+      QUOTA_INFO_UNAVAILABLE = 21
+      REQUIRED_TOS_AGREEMENT = 22
+      RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING = 23
+      RESOURCE_NOT_DELETED = 24
+      SCHEMA_VALIDATION_IGNORED = 25
+      SINGLE_INSTANCE_PROPERTY_TEMPLATE = 26
+      UNDECLARED_PROPERTIES = 27
+      UNREACHABLE = 28
+
+    class DataValueListEntry(_messages.Message):
+      r"""A DataValueListEntry object.
+
+      Fields:
+        key: [Output Only] A key that provides more detail on the warning
+          being returned. For example, for warnings where there are no results
+          in a list request for a particular zone, this key might be scope and
+          the key value might be the zone name. Other examples might be a key
+          indicating a deprecated resource and a suggested replacement, or a
+          warning about invalid network settings (for example, if an instance
+          attempts to perform IP forwarding but is not enabled for IP
+          forwarding).
+        value: [Output Only] A warning data value corresponding to the key.
+      """
+
+      key = _messages.StringField(1)
+      value = _messages.StringField(2)
+
+    code = _messages.EnumField('CodeValueValuesEnum', 1)
+    data = _messages.MessageField('DataValueListEntry', 2, repeated=True)
+    message = _messages.StringField(3)
+
+  backendBuckets = _messages.MessageField('BackendBucket', 1, repeated=True)
+  warning = _messages.MessageField('WarningValue', 2)
 
 
 class BackendCustomMetric(_messages.Message):
@@ -4431,7 +4955,7 @@ class BackendService(_messages.Message):
       standard    HTTP response header field Endpoint-Load-Metrics. The
       reported    metrics to use for computing the weights are specified via
       thecustomMetrics field.        This field is applicable to either:
-      - A regional backend service with the service_protocol set to HTTP,
+      - A regional backend service with the service protocol set to HTTP,
       HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
       INTERNAL_MANAGED.        - A global backend service with the
       load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
@@ -4491,7 +5015,7 @@ class BackendService(_messages.Message):
       This field specifies parameters that control consistent hashing. This
       field is only applicable whenlocalityLbPolicy is set to MAGLEV
       orRING_HASH.  This field is applicable to either:        - A regional
-      backend service with the service_protocol set to HTTP,    HTTPS, HTTP2
+      backend service with the service protocol set to HTTP,    HTTPS, HTTP2
       or H2C, and load_balancing_scheme set to    INTERNAL_MANAGED.     - A
       global backend service with the    load_balancing_scheme set to
       INTERNAL_SELF_MANAGED.
@@ -4637,7 +5161,7 @@ class BackendService(_messages.Message):
       standard    HTTP response header field Endpoint-Load-Metrics. The
       reported    metrics to use for computing the weights are specified via
       thecustomMetrics field.        This field is applicable to either:
-      - A regional backend service with the service_protocol set to HTTP,
+      - A regional backend service with the service protocol set to HTTP,
       HTTPS, HTTP2 or H2C, and load_balancing_scheme set to
       INTERNAL_MANAGED.        - A global backend service with the
       load_balancing_scheme set to INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or
@@ -4702,11 +5226,11 @@ class BackendService(_messages.Message):
       or managed services published using    Private Service Connect
       Applicable backend service types can be:        - A global backend
       service with the loadBalancingScheme set to    INTERNAL_SELF_MANAGED or
-      EXTERNAL_MANAGED.     - A regional backend    service with the
-      serviceProtocol set to HTTP, HTTPS, HTTP2 or H2C, and
-      loadBalancingScheme set to INTERNAL_MANAGED or EXTERNAL_MANAGED. Not
-      supported for Serverless NEGs.    Not supported when the backend service
-      is referenced by a URL map that is bound to target gRPC proxy that has
+      EXTERNAL_MANAGED.     - A regional backend    service with the service
+      protocol set to HTTP, HTTPS, HTTP2 or H2C, and    loadBalancingScheme
+      set to INTERNAL_MANAGED or EXTERNAL_MANAGED. Not    supported for
+      Serverless NEGs.    Not supported when the backend service is referenced
+      by a URL map that is bound to target gRPC proxy that has
       validateForProxyless field set to true.
     params: Input only. [Input Only] Additional params passed with the
       request, but not persisted as part of resource payload.
@@ -4897,7 +5421,7 @@ class BackendService(_messages.Message):
     response header field Endpoint-Load-Metrics. The reported    metrics to
     use for computing the weights are specified via thecustomMetrics field.
     This field is applicable to either:       - A regional backend service
-    with the service_protocol set to HTTP,       HTTPS, HTTP2 or H2C, and
+    with the service protocol set to HTTP,       HTTPS, HTTP2 or H2C, and
     load_balancing_scheme set to       INTERNAL_MANAGED.        - A global
     backend service with the       load_balancing_scheme set to
     INTERNAL_SELF_MANAGED, INTERNAL_MANAGED, or       EXTERNAL_MANAGED.
@@ -8916,6 +9440,37 @@ class CompositeHealthCheckAggregatedList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 7)
 
 
+class CompositeHealthCheckHealth(_messages.Message):
+  r"""Response message for RegionCompositeHealthChecks.GetHealth
+
+  Enums:
+    HealthStateValueValuesEnum: Health state of the CompositeHealthCheck.
+
+  Fields:
+    healthSources: Health sources and their corresponding health states.
+    healthState: Health state of the CompositeHealthCheck.
+    kind: Output only. [Output Only] Type of resource.
+      Alwayscompute#compositeHealthCheckHealth for the health of composite
+      health checks.
+  """
+
+  class HealthStateValueValuesEnum(_messages.Enum):
+    r"""Health state of the CompositeHealthCheck.
+
+    Values:
+      HEALTHY: <no description>
+      UNHEALTHY: <no description>
+      UNKNOWN: <no description>
+    """
+    HEALTHY = 0
+    UNHEALTHY = 1
+    UNKNOWN = 2
+
+  healthSources = _messages.MessageField('CompositeHealthChecksGetHealthResponseHealthSourceHealth', 1, repeated=True)
+  healthState = _messages.EnumField('HealthStateValueValuesEnum', 2)
+  kind = _messages.StringField(3, default='compute#compositeHealthCheckHealth')
+
+
 class CompositeHealthCheckList(_messages.Message):
   r"""A CompositeHealthCheckList object.
 
@@ -9081,6 +9636,34 @@ class CompositeHealthCheckList(_messages.Message):
   nextPageToken = _messages.StringField(4)
   selfLink = _messages.StringField(5)
   warning = _messages.MessageField('WarningValue', 6)
+
+
+class CompositeHealthChecksGetHealthResponseHealthSourceHealth(_messages.Message):
+  r"""A CompositeHealthChecksGetHealthResponseHealthSourceHealth object.
+
+  Enums:
+    HealthStateValueValuesEnum: Health state of the associated HealthSource
+      resource.
+
+  Fields:
+    healthState: Health state of the associated HealthSource resource.
+    source: Fully qualified URL of the associated HealthSource resource.
+  """
+
+  class HealthStateValueValuesEnum(_messages.Enum):
+    r"""Health state of the associated HealthSource resource.
+
+    Values:
+      HEALTHY: <no description>
+      UNHEALTHY: <no description>
+      UNKNOWN: <no description>
+    """
+    HEALTHY = 0
+    UNHEALTHY = 1
+    UNKNOWN = 2
+
+  healthState = _messages.EnumField('HealthStateValueValuesEnum', 1)
+  source = _messages.StringField(2)
 
 
 class CompositeHealthChecksScopedList(_messages.Message):
@@ -10025,6 +10608,87 @@ class ComputeBackendBucketsAddSignedUrlKeyRequest(_messages.Message):
   signedUrlKey = _messages.MessageField('SignedUrlKey', 4)
 
 
+class ComputeBackendBucketsAggregatedListRequest(_messages.Message):
+  r"""A ComputeBackendBucketsAggregatedListRequest object.
+
+  Fields:
+    filter: A filter expression that filters resources listed in the response.
+      Most Compute resources support two types of filter expressions:
+      expressions that support regular expressions and expressions that follow
+      API improvement proposal AIP-160. These two types of filter expressions
+      cannot be mixed in one request.  If you want to use AIP-160, your
+      expression must specify the field name, an operator, and the value that
+      you want to use for filtering. The value must be a string, a number, or
+      a boolean. The operator must be either `=`, `!=`, `>`, `<`, `<=`, `>=`
+      or `:`.  For example, if you are filtering Compute Engine instances, you
+      can exclude instances named `example-instance` by specifying `name !=
+      example-instance`.  The `:*` comparison can be used to test whether a
+      key has been defined. For example, to find all objects with `owner`
+      label use: ``` labels.owner:* ```  You can also filter nested fields.
+      For example, you could specify `scheduling.automaticRestart = false` to
+      include instances only if they are not scheduled for automatic restarts.
+      You can use filtering on nested fields to filter based onresource
+      labels.  To filter on multiple expressions, provide each separate
+      expression within parentheses. For example: ```
+      (scheduling.automaticRestart = true) (cpuPlatform = "Intel Skylake") ```
+      By default, each expression is an `AND` expression. However, you can
+      include `AND` and `OR` expressions explicitly. For example: ```
+      (cpuPlatform = "Intel Skylake") OR (cpuPlatform = "Intel Broadwell") AND
+      (scheduling.automaticRestart = true) ```  If you want to use a regular
+      expression, use the `eq` (equal) or `ne` (not equal) operator against a
+      single un-parenthesized expression with or without quotes or against
+      multiple parenthesized expressions. Examples:  `fieldname eq unquoted
+      literal` `fieldname eq 'single quoted literal'` `fieldname eq "double
+      quoted literal"` `(fieldname1 eq literal) (fieldname2 ne "literal")`
+      The literal value is interpreted as a regular expression using GoogleRE2
+      library syntax. The literal value must match the entire field.  For
+      example, to filter for instances that do not end with name "instance",
+      you would use `name ne .*instance`.  You cannot combine constraints on
+      multiple fields using regular expressions.
+    includeAllScopes: Indicates whether every visible scope for each scope
+      type (zone, region, global) should be included in the response. For new
+      resource types added after this field, the flag has no effect as new
+      resource types will always include every visible scope for each scope
+      type in response. For resource types which predate this field, if this
+      flag is omitted or false, only scopes of the scope types where the
+      resource type is expected to be found will be included.
+    maxResults: The maximum number of results per page that should be
+      returned. If the number of available results is larger than
+      `maxResults`, Compute Engine returns a `nextPageToken` that can be used
+      to get the next page of results in subsequent list requests. Acceptable
+      values are `0` to `500`, inclusive. (Default: `500`)
+    orderBy: Sorts list results by a certain order. By default, results are
+      returned in alphanumerical order based on the resource name.  You can
+      also sort results in descending order based on the creation timestamp
+      using `orderBy="creationTimestamp desc"`. This sorts results based on
+      the `creationTimestamp` field in reverse chronological order (newest
+      result first). Use this to sort resources like operations so that the
+      newest operation is returned first.  Currently, only sorting by `name`
+      or `creationTimestamp desc` is supported.
+    pageToken: Specifies a page token to use. Set `pageToken` to the
+      `nextPageToken` returned by a previous list request to get the next page
+      of results.
+    project: Name of the project scoping this request.
+    returnPartialSuccess: Opt-in for partial success behavior which provides
+      partial results in case of failure. The default value is false.  For
+      example, when partial success behavior is enabled, aggregatedList for a
+      single zone scope either returns all resources in the zone or no
+      resources, with an error code.
+    serviceProjectNumber: The Shared VPC service project id or service project
+      number for which aggregated list request is invoked for subnetworks
+      list-usable api.
+  """
+
+  filter = _messages.StringField(1)
+  includeAllScopes = _messages.BooleanField(2)
+  maxResults = _messages.IntegerField(3, variant=_messages.Variant.UINT32, default=500)
+  orderBy = _messages.StringField(4)
+  pageToken = _messages.StringField(5)
+  project = _messages.StringField(6, required=True)
+  returnPartialSuccess = _messages.BooleanField(7)
+  serviceProjectNumber = _messages.IntegerField(8)
+
+
 class ComputeBackendBucketsDeleteRequest(_messages.Message):
   r"""A ComputeBackendBucketsDeleteRequest object.
 
@@ -10125,6 +10789,75 @@ class ComputeBackendBucketsInsertRequest(_messages.Message):
 
 class ComputeBackendBucketsListRequest(_messages.Message):
   r"""A ComputeBackendBucketsListRequest object.
+
+  Fields:
+    filter: A filter expression that filters resources listed in the response.
+      Most Compute resources support two types of filter expressions:
+      expressions that support regular expressions and expressions that follow
+      API improvement proposal AIP-160. These two types of filter expressions
+      cannot be mixed in one request.  If you want to use AIP-160, your
+      expression must specify the field name, an operator, and the value that
+      you want to use for filtering. The value must be a string, a number, or
+      a boolean. The operator must be either `=`, `!=`, `>`, `<`, `<=`, `>=`
+      or `:`.  For example, if you are filtering Compute Engine instances, you
+      can exclude instances named `example-instance` by specifying `name !=
+      example-instance`.  The `:*` comparison can be used to test whether a
+      key has been defined. For example, to find all objects with `owner`
+      label use: ``` labels.owner:* ```  You can also filter nested fields.
+      For example, you could specify `scheduling.automaticRestart = false` to
+      include instances only if they are not scheduled for automatic restarts.
+      You can use filtering on nested fields to filter based onresource
+      labels.  To filter on multiple expressions, provide each separate
+      expression within parentheses. For example: ```
+      (scheduling.automaticRestart = true) (cpuPlatform = "Intel Skylake") ```
+      By default, each expression is an `AND` expression. However, you can
+      include `AND` and `OR` expressions explicitly. For example: ```
+      (cpuPlatform = "Intel Skylake") OR (cpuPlatform = "Intel Broadwell") AND
+      (scheduling.automaticRestart = true) ```  If you want to use a regular
+      expression, use the `eq` (equal) or `ne` (not equal) operator against a
+      single un-parenthesized expression with or without quotes or against
+      multiple parenthesized expressions. Examples:  `fieldname eq unquoted
+      literal` `fieldname eq 'single quoted literal'` `fieldname eq "double
+      quoted literal"` `(fieldname1 eq literal) (fieldname2 ne "literal")`
+      The literal value is interpreted as a regular expression using GoogleRE2
+      library syntax. The literal value must match the entire field.  For
+      example, to filter for instances that do not end with name "instance",
+      you would use `name ne .*instance`.  You cannot combine constraints on
+      multiple fields using regular expressions.
+    maxResults: The maximum number of results per page that should be
+      returned. If the number of available results is larger than
+      `maxResults`, Compute Engine returns a `nextPageToken` that can be used
+      to get the next page of results in subsequent list requests. Acceptable
+      values are `0` to `500`, inclusive. (Default: `500`)
+    orderBy: Sorts list results by a certain order. By default, results are
+      returned in alphanumerical order based on the resource name.  You can
+      also sort results in descending order based on the creation timestamp
+      using `orderBy="creationTimestamp desc"`. This sorts results based on
+      the `creationTimestamp` field in reverse chronological order (newest
+      result first). Use this to sort resources like operations so that the
+      newest operation is returned first.  Currently, only sorting by `name`
+      or `creationTimestamp desc` is supported.
+    pageToken: Specifies a page token to use. Set `pageToken` to the
+      `nextPageToken` returned by a previous list request to get the next page
+      of results.
+    project: Project ID for this request.
+    returnPartialSuccess: Opt-in for partial success behavior which provides
+      partial results in case of failure. The default value is false.  For
+      example, when partial success behavior is enabled, aggregatedList for a
+      single zone scope either returns all resources in the zone or no
+      resources, with an error code.
+  """
+
+  filter = _messages.StringField(1)
+  maxResults = _messages.IntegerField(2, variant=_messages.Variant.UINT32, default=500)
+  orderBy = _messages.StringField(3)
+  pageToken = _messages.StringField(4)
+  project = _messages.StringField(5, required=True)
+  returnPartialSuccess = _messages.BooleanField(6)
+
+
+class ComputeBackendBucketsListUsableRequest(_messages.Message):
+  r"""A ComputeBackendBucketsListUsableRequest object.
 
   Fields:
     filter: A filter expression that filters resources listed in the response.
@@ -11695,6 +12428,8 @@ class ComputeDisksUpdateKmsKeyRequest(_messages.Message):
 
   Fields:
     disk: Name of the Disk resource, should conform to RFC1035.
+    diskUpdateKmsKeyRequest: A DiskUpdateKmsKeyRequest resource to be passed
+      as the request body.
     project: Project ID for this request.
     requestId: An optional request ID to identify requests. Specify a unique
       request ID so that if you must retry your request, the server will know
@@ -11710,9 +12445,10 @@ class ComputeDisksUpdateKmsKeyRequest(_messages.Message):
   """
 
   disk = _messages.StringField(1, required=True)
-  project = _messages.StringField(2, required=True)
-  requestId = _messages.StringField(3)
-  zone = _messages.StringField(4, required=True)
+  diskUpdateKmsKeyRequest = _messages.MessageField('DiskUpdateKmsKeyRequest', 2)
+  project = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+  zone = _messages.StringField(5, required=True)
 
 
 class ComputeDisksUpdateRequest(_messages.Message):
@@ -25242,6 +25978,293 @@ class ComputeRegionAutoscalersUpdateRequest(_messages.Message):
   requestId = _messages.StringField(5)
 
 
+class ComputeRegionBackendBucketsDeleteRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsDeleteRequest object.
+
+  Fields:
+    backendBucket: Name of the BackendBucket resource to delete.
+    project: Project ID for this request.
+    region: Name of the region scoping this request.
+    requestId: An optional request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server will know
+      to ignore the request if it has already been completed.  For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server can check if original operation with the same request ID was
+      received, and if so, will ignore the second request. This prevents
+      clients from accidentally creating duplicate commitments.  The request
+      ID must be a valid UUID with the exception that zero UUID is not
+      supported (00000000-0000-0000-0000-000000000000). end_interface:
+      MixerMutationRequestBuilder
+  """
+
+  backendBucket = _messages.StringField(1, required=True)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class ComputeRegionBackendBucketsGetIamPolicyRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsGetIamPolicyRequest object.
+
+  Fields:
+    optionsRequestedPolicyVersion: Requested IAM Policy version.
+    project: Project ID for this request.
+    region: The name of the region for this request.
+    resource: Name or id of the resource for this request.
+  """
+
+  optionsRequestedPolicyVersion = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
+  resource = _messages.StringField(4, required=True)
+
+
+class ComputeRegionBackendBucketsGetRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsGetRequest object.
+
+  Fields:
+    backendBucket: Name of the BackendBucket resource to return.
+    project: Project ID for this request.
+    region: Name of the region scoping this request.
+  """
+
+  backendBucket = _messages.StringField(1, required=True)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
+
+
+class ComputeRegionBackendBucketsInsertRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsInsertRequest object.
+
+  Fields:
+    backendBucket: A BackendBucket resource to be passed as the request body.
+    project: Project ID for this request.
+    region: Name of the region of this request.
+    requestId: An optional request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server will know
+      to ignore the request if it has already been completed.  For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server can check if original operation with the same request ID was
+      received, and if so, will ignore the second request. This prevents
+      clients from accidentally creating duplicate commitments.  The request
+      ID must be a valid UUID with the exception that zero UUID is not
+      supported (00000000-0000-0000-0000-000000000000).
+  """
+
+  backendBucket = _messages.MessageField('BackendBucket', 1)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
+  requestId = _messages.StringField(4)
+
+
+class ComputeRegionBackendBucketsListRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsListRequest object.
+
+  Fields:
+    filter: A filter expression that filters resources listed in the response.
+      Most Compute resources support two types of filter expressions:
+      expressions that support regular expressions and expressions that follow
+      API improvement proposal AIP-160. These two types of filter expressions
+      cannot be mixed in one request.  If you want to use AIP-160, your
+      expression must specify the field name, an operator, and the value that
+      you want to use for filtering. The value must be a string, a number, or
+      a boolean. The operator must be either `=`, `!=`, `>`, `<`, `<=`, `>=`
+      or `:`.  For example, if you are filtering Compute Engine instances, you
+      can exclude instances named `example-instance` by specifying `name !=
+      example-instance`.  The `:*` comparison can be used to test whether a
+      key has been defined. For example, to find all objects with `owner`
+      label use: ``` labels.owner:* ```  You can also filter nested fields.
+      For example, you could specify `scheduling.automaticRestart = false` to
+      include instances only if they are not scheduled for automatic restarts.
+      You can use filtering on nested fields to filter based onresource
+      labels.  To filter on multiple expressions, provide each separate
+      expression within parentheses. For example: ```
+      (scheduling.automaticRestart = true) (cpuPlatform = "Intel Skylake") ```
+      By default, each expression is an `AND` expression. However, you can
+      include `AND` and `OR` expressions explicitly. For example: ```
+      (cpuPlatform = "Intel Skylake") OR (cpuPlatform = "Intel Broadwell") AND
+      (scheduling.automaticRestart = true) ```  If you want to use a regular
+      expression, use the `eq` (equal) or `ne` (not equal) operator against a
+      single un-parenthesized expression with or without quotes or against
+      multiple parenthesized expressions. Examples:  `fieldname eq unquoted
+      literal` `fieldname eq 'single quoted literal'` `fieldname eq "double
+      quoted literal"` `(fieldname1 eq literal) (fieldname2 ne "literal")`
+      The literal value is interpreted as a regular expression using GoogleRE2
+      library syntax. The literal value must match the entire field.  For
+      example, to filter for instances that do not end with name "instance",
+      you would use `name ne .*instance`.  You cannot combine constraints on
+      multiple fields using regular expressions.
+    maxResults: The maximum number of results per page that should be
+      returned. If the number of available results is larger than
+      `maxResults`, Compute Engine returns a `nextPageToken` that can be used
+      to get the next page of results in subsequent list requests. Acceptable
+      values are `0` to `500`, inclusive. (Default: `500`)
+    orderBy: Sorts list results by a certain order. By default, results are
+      returned in alphanumerical order based on the resource name.  You can
+      also sort results in descending order based on the creation timestamp
+      using `orderBy="creationTimestamp desc"`. This sorts results based on
+      the `creationTimestamp` field in reverse chronological order (newest
+      result first). Use this to sort resources like operations so that the
+      newest operation is returned first.  Currently, only sorting by `name`
+      or `creationTimestamp desc` is supported.
+    pageToken: Specifies a page token to use. Set `pageToken` to the
+      `nextPageToken` returned by a previous list request to get the next page
+      of results.
+    project: Project ID for this request.
+    region: Name of the region of this request.
+    returnPartialSuccess: Opt-in for partial success behavior which provides
+      partial results in case of failure. The default value is false.  For
+      example, when partial success behavior is enabled, aggregatedList for a
+      single zone scope either returns all resources in the zone or no
+      resources, with an error code.
+  """
+
+  filter = _messages.StringField(1)
+  maxResults = _messages.IntegerField(2, variant=_messages.Variant.UINT32, default=500)
+  orderBy = _messages.StringField(3)
+  pageToken = _messages.StringField(4)
+  project = _messages.StringField(5, required=True)
+  region = _messages.StringField(6, required=True)
+  returnPartialSuccess = _messages.BooleanField(7)
+
+
+class ComputeRegionBackendBucketsListUsableRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsListUsableRequest object.
+
+  Fields:
+    filter: A filter expression that filters resources listed in the response.
+      Most Compute resources support two types of filter expressions:
+      expressions that support regular expressions and expressions that follow
+      API improvement proposal AIP-160. These two types of filter expressions
+      cannot be mixed in one request.  If you want to use AIP-160, your
+      expression must specify the field name, an operator, and the value that
+      you want to use for filtering. The value must be a string, a number, or
+      a boolean. The operator must be either `=`, `!=`, `>`, `<`, `<=`, `>=`
+      or `:`.  For example, if you are filtering Compute Engine instances, you
+      can exclude instances named `example-instance` by specifying `name !=
+      example-instance`.  The `:*` comparison can be used to test whether a
+      key has been defined. For example, to find all objects with `owner`
+      label use: ``` labels.owner:* ```  You can also filter nested fields.
+      For example, you could specify `scheduling.automaticRestart = false` to
+      include instances only if they are not scheduled for automatic restarts.
+      You can use filtering on nested fields to filter based onresource
+      labels.  To filter on multiple expressions, provide each separate
+      expression within parentheses. For example: ```
+      (scheduling.automaticRestart = true) (cpuPlatform = "Intel Skylake") ```
+      By default, each expression is an `AND` expression. However, you can
+      include `AND` and `OR` expressions explicitly. For example: ```
+      (cpuPlatform = "Intel Skylake") OR (cpuPlatform = "Intel Broadwell") AND
+      (scheduling.automaticRestart = true) ```  If you want to use a regular
+      expression, use the `eq` (equal) or `ne` (not equal) operator against a
+      single un-parenthesized expression with or without quotes or against
+      multiple parenthesized expressions. Examples:  `fieldname eq unquoted
+      literal` `fieldname eq 'single quoted literal'` `fieldname eq "double
+      quoted literal"` `(fieldname1 eq literal) (fieldname2 ne "literal")`
+      The literal value is interpreted as a regular expression using GoogleRE2
+      library syntax. The literal value must match the entire field.  For
+      example, to filter for instances that do not end with name "instance",
+      you would use `name ne .*instance`.  You cannot combine constraints on
+      multiple fields using regular expressions.
+    maxResults: The maximum number of results per page that should be
+      returned. If the number of available results is larger than
+      `maxResults`, Compute Engine returns a `nextPageToken` that can be used
+      to get the next page of results in subsequent list requests. Acceptable
+      values are `0` to `500`, inclusive. (Default: `500`)
+    orderBy: Sorts list results by a certain order. By default, results are
+      returned in alphanumerical order based on the resource name.  You can
+      also sort results in descending order based on the creation timestamp
+      using `orderBy="creationTimestamp desc"`. This sorts results based on
+      the `creationTimestamp` field in reverse chronological order (newest
+      result first). Use this to sort resources like operations so that the
+      newest operation is returned first.  Currently, only sorting by `name`
+      or `creationTimestamp desc` is supported.
+    pageToken: Specifies a page token to use. Set `pageToken` to the
+      `nextPageToken` returned by a previous list request to get the next page
+      of results.
+    project: Project ID for this request.
+    region: Name of the region scoping this request. It must be a string that
+      meets the requirements in RFC1035.
+    returnPartialSuccess: Opt-in for partial success behavior which provides
+      partial results in case of failure. The default value is false.  For
+      example, when partial success behavior is enabled, aggregatedList for a
+      single zone scope either returns all resources in the zone or no
+      resources, with an error code.
+  """
+
+  filter = _messages.StringField(1)
+  maxResults = _messages.IntegerField(2, variant=_messages.Variant.UINT32, default=500)
+  orderBy = _messages.StringField(3)
+  pageToken = _messages.StringField(4)
+  project = _messages.StringField(5, required=True)
+  region = _messages.StringField(6, required=True)
+  returnPartialSuccess = _messages.BooleanField(7)
+
+
+class ComputeRegionBackendBucketsPatchRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsPatchRequest object.
+
+  Fields:
+    backendBucket: Name of the BackendBucket resource to patch.
+    backendBucketResource: A BackendBucket resource to be passed as the
+      request body.
+    project: Project ID for this request.
+    region: Name of the region scoping this request.
+    requestId: An optional request ID to identify requests. Specify a unique
+      request ID so that if you must retry your request, the server will know
+      to ignore the request if it has already been completed.  For example,
+      consider a situation where you make an initial request and the request
+      times out. If you make the request again with the same request ID, the
+      server can check if original operation with the same request ID was
+      received, and if so, will ignore the second request. This prevents
+      clients from accidentally creating duplicate commitments.  The request
+      ID must be a valid UUID with the exception that zero UUID is not
+      supported (00000000-0000-0000-0000-000000000000). end_interface:
+      MixerMutationRequestBuilder
+  """
+
+  backendBucket = _messages.StringField(1, required=True)
+  backendBucketResource = _messages.MessageField('BackendBucket', 2)
+  project = _messages.StringField(3, required=True)
+  region = _messages.StringField(4, required=True)
+  requestId = _messages.StringField(5)
+
+
+class ComputeRegionBackendBucketsSetIamPolicyRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsSetIamPolicyRequest object.
+
+  Fields:
+    project: Project ID for this request.
+    region: The name of the region for this request.
+    regionSetPolicyRequest: A RegionSetPolicyRequest resource to be passed as
+      the request body.
+    resource: Name or id of the resource for this request.
+  """
+
+  project = _messages.StringField(1, required=True)
+  region = _messages.StringField(2, required=True)
+  regionSetPolicyRequest = _messages.MessageField('RegionSetPolicyRequest', 3)
+  resource = _messages.StringField(4, required=True)
+
+
+class ComputeRegionBackendBucketsTestIamPermissionsRequest(_messages.Message):
+  r"""A ComputeRegionBackendBucketsTestIamPermissionsRequest object.
+
+  Fields:
+    project: Project ID for this request.
+    region: The name of the region for this request.
+    resource: Name or id of the resource for this request.
+    testPermissionsRequest: A TestPermissionsRequest resource to be passed as
+      the request body.
+  """
+
+  project = _messages.StringField(1, required=True)
+  region = _messages.StringField(2, required=True)
+  resource = _messages.StringField(3, required=True)
+  testPermissionsRequest = _messages.MessageField('TestPermissionsRequest', 4)
+
+
 class ComputeRegionBackendServicesDeleteRequest(_messages.Message):
   r"""A ComputeRegionBackendServicesDeleteRequest object.
 
@@ -25933,6 +26956,21 @@ class ComputeRegionCompositeHealthChecksDeleteRequest(_messages.Message):
   requestId = _messages.StringField(4)
 
 
+class ComputeRegionCompositeHealthChecksGetHealthRequest(_messages.Message):
+  r"""A ComputeRegionCompositeHealthChecksGetHealthRequest object.
+
+  Fields:
+    compositeHealthCheck: Name of the CompositeHealthCheck resource to get
+      health for.
+    project: Name of the project scoping this request.
+    region: Name of the region scoping this request.
+  """
+
+  compositeHealthCheck = _messages.StringField(1, required=True)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
+
+
 class ComputeRegionCompositeHealthChecksGetRequest(_messages.Message):
   r"""A ComputeRegionCompositeHealthChecksGetRequest object.
 
@@ -26618,6 +27656,8 @@ class ComputeRegionDisksUpdateKmsKeyRequest(_messages.Message):
     disk: Name of the Disk resource, should conform to RFC1035.
     project: Project ID for this request.
     region: The name of the region for this request.
+    regionDiskUpdateKmsKeyRequest: A RegionDiskUpdateKmsKeyRequest resource to
+      be passed as the request body.
     requestId: An optional request ID to identify requests. Specify a unique
       request ID so that if you must retry your request, the server will know
       to ignore the request if it has already been completed.  For example,
@@ -26633,7 +27673,8 @@ class ComputeRegionDisksUpdateKmsKeyRequest(_messages.Message):
   disk = _messages.StringField(1, required=True)
   project = _messages.StringField(2, required=True)
   region = _messages.StringField(3, required=True)
-  requestId = _messages.StringField(4)
+  regionDiskUpdateKmsKeyRequest = _messages.MessageField('RegionDiskUpdateKmsKeyRequest', 4)
+  requestId = _messages.StringField(5)
 
 
 class ComputeRegionDisksUpdateRequest(_messages.Message):
@@ -27511,6 +28552,20 @@ class ComputeRegionHealthSourcesDeleteRequest(_messages.Message):
   project = _messages.StringField(2, required=True)
   region = _messages.StringField(3, required=True)
   requestId = _messages.StringField(4)
+
+
+class ComputeRegionHealthSourcesGetHealthRequest(_messages.Message):
+  r"""A ComputeRegionHealthSourcesGetHealthRequest object.
+
+  Fields:
+    healthSource: Name of the HealthSource resource to get health for.
+    project: Name of the project scoping this request.
+    region: Name of the region scoping this request.
+  """
+
+  healthSource = _messages.StringField(1, required=True)
+  project = _messages.StringField(2, required=True)
+  region = _messages.StringField(3, required=True)
 
 
 class ComputeRegionHealthSourcesGetRequest(_messages.Message):
@@ -34906,11 +35961,14 @@ class ComputeSnapshotsUpdateKmsKeyRequest(_messages.Message):
       supported (00000000-0000-0000-0000-000000000000).
     snapshot: Name of the snapshot resource to update. Should conform to
       RFC1035.
+    snapshotUpdateKmsKeyRequest: A SnapshotUpdateKmsKeyRequest resource to be
+      passed as the request body.
   """
 
   project = _messages.StringField(1, required=True)
   requestId = _messages.StringField(2)
   snapshot = _messages.StringField(3, required=True)
+  snapshotUpdateKmsKeyRequest = _messages.MessageField('SnapshotUpdateKmsKeyRequest', 4)
 
 
 class ComputeSslCertificatesAggregatedListRequest(_messages.Message):
@@ -42259,6 +43317,21 @@ class DiskTypesScopedList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 2)
 
 
+class DiskUpdateKmsKeyRequest(_messages.Message):
+  r"""A DiskUpdateKmsKeyRequest object.
+
+  Fields:
+    kmsKeyName: Optional. The new KMS key to replace the current one on the
+      disk. If empty, the disk will be re-encrypted using the primary version
+      of the disk's current KMS key.  The KMS key can be provided in the
+      following formats:              -
+      projects/project_id/locations/location/keyRings/key_ring/cryptoKeys/key
+      Where project is the project ID or project number.
+  """
+
+  kmsKeyName = _messages.StringField(1)
+
+
 class DisksAddResourcePoliciesRequest(_messages.Message):
   r"""A DisksAddResourcePoliciesRequest object.
 
@@ -47528,8 +48601,9 @@ class GuestOsFeature(_messages.Message):
       following values:        - VIRTIO_SCSI_MULTIQUEUE    - WINDOWS    -
       MULTI_IP_SUBNET    - UEFI_COMPATIBLE    - GVNIC    - SEV_CAPABLE    -
       SUSPEND_RESUME_COMPATIBLE    - SEV_LIVE_MIGRATABLE_V2    -
-      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE   For
-      more information, see Enabling guest operating system features.
+      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE    -
+      CCA_CAPABLE   For more information, see Enabling guest operating system
+      features.
 
   Fields:
     type: The ID of a supported feature. To add multiple values, use commas to
@@ -47537,8 +48611,9 @@ class GuestOsFeature(_messages.Message):
       VIRTIO_SCSI_MULTIQUEUE    - WINDOWS    - MULTI_IP_SUBNET    -
       UEFI_COMPATIBLE    - GVNIC    - SEV_CAPABLE    -
       SUSPEND_RESUME_COMPATIBLE    - SEV_LIVE_MIGRATABLE_V2    -
-      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE   For
-      more information, see Enabling guest operating system features.
+      SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF    - SNP_SVSM_CAPABLE    -
+      CCA_CAPABLE   For more information, see Enabling guest operating system
+      features.
   """
 
   class TypeValueValuesEnum(_messages.Enum):
@@ -47547,8 +48622,8 @@ class GuestOsFeature(_messages.Message):
     VIRTIO_SCSI_MULTIQUEUE    - WINDOWS    - MULTI_IP_SUBNET    -
     UEFI_COMPATIBLE    - GVNIC    - SEV_CAPABLE    - SUSPEND_RESUME_COMPATIBLE
     - SEV_LIVE_MIGRATABLE_V2    - SEV_SNP_CAPABLE    - TDX_CAPABLE    - IDPF
-    - SNP_SVSM_CAPABLE   For more information, see Enabling guest operating
-    system features.
+    - SNP_SVSM_CAPABLE    - CCA_CAPABLE   For more information, see Enabling
+    guest operating system features.
 
     Values:
       BARE_METAL_LINUX_COMPATIBLE: <no description>
@@ -50156,6 +51231,36 @@ class HealthSourceAggregatedList(_messages.Message):
   warning = _messages.MessageField('WarningValue', 7)
 
 
+class HealthSourceHealth(_messages.Message):
+  r"""Response message for RegionHealthSources.GetHealth
+
+  Enums:
+    HealthStateValueValuesEnum: Health state of the HealthSource.
+
+  Fields:
+    healthState: Health state of the HealthSource.
+    kind: Output only. [Output Only] Type of resource.
+      Alwayscompute#healthSourceHealth for the health of health sources.
+    sources: Health state details of the sources.
+  """
+
+  class HealthStateValueValuesEnum(_messages.Enum):
+    r"""Health state of the HealthSource.
+
+    Values:
+      HEALTHY: <no description>
+      UNHEALTHY: <no description>
+      UNKNOWN: <no description>
+    """
+    HEALTHY = 0
+    UNHEALTHY = 1
+    UNKNOWN = 2
+
+  healthState = _messages.EnumField('HealthStateValueValuesEnum', 1)
+  kind = _messages.StringField(2, default='compute#healthSourceHealth')
+  sources = _messages.MessageField('HealthSourcesGetHealthResponseSourceInfo', 3, repeated=True)
+
+
 class HealthSourceList(_messages.Message):
   r"""A HealthSourceList object.
 
@@ -50321,6 +51426,41 @@ class HealthSourceList(_messages.Message):
   nextPageToken = _messages.StringField(4)
   selfLink = _messages.StringField(5)
   warning = _messages.MessageField('WarningValue', 6)
+
+
+class HealthSourcesGetHealthResponseSourceInfo(_messages.Message):
+  r"""A HealthSourcesGetHealthResponseSourceInfo object.
+
+  Fields:
+    backends: Represents an instance group or network endpoint group behind
+      the source backend service. Only used if the sourceType of the
+      regionHealthSource is BACKEND_SERVICE.
+    forwardingRule: Fully qualified URL of the forwarding rule associated with
+      the source resource if it is a L4ILB backend service.
+    source: Fully qualified URL of the associated source resource. This is
+      always a backend service URL.
+  """
+
+  backends = _messages.MessageField('HealthSourcesGetHealthResponseSourceInfoBackendInfo', 1, repeated=True)
+  forwardingRule = _messages.StringField(2)
+  source = _messages.StringField(3)
+
+
+class HealthSourcesGetHealthResponseSourceInfoBackendInfo(_messages.Message):
+  r"""A HealthSourcesGetHealthResponseSourceInfoBackendInfo object.
+
+  Fields:
+    endpointCount: Total number of endpoints when determining the health of
+      the regionHealthSource.
+    group: Fully qualified URL of an instance group or network endpoint group
+      behind the source backend service.
+    healthyEndpointCount: Number of endpoints considered healthy when
+      determining health of the regionHealthSource.
+  """
+
+  endpointCount = _messages.IntegerField(1, variant=_messages.Variant.INT32)
+  group = _messages.StringField(2)
+  healthyEndpointCount = _messages.IntegerField(3, variant=_messages.Variant.INT32)
 
 
 class HealthSourcesScopedList(_messages.Message):
@@ -53313,11 +54453,11 @@ class InstanceGroupManager(_messages.Message):
       hash symbols indicate the number of digits. For example, a base instance
       name of "vm-###" results in "vm-001" as a VM name. @pattern
       [a-z](([-a-z0-9]{0,57})|([-a-z0-9]{0,51}-#{1,10}(\\[[0-9]{1,10}\\])?))
-    creationTimestamp: Output only. [Output Only] The creation timestamp for
-      this managed instance group inRFC3339 text format.
-    currentActions: Output only. [Output Only] The list of instance actions
-      and the number of instances in this managed instance group that are
-      scheduled for each of those actions.
+    creationTimestamp: Output only. The creation timestamp for this managed
+      instance group inRFC3339 text format.
+    currentActions: Output only. The list of instance actions and the number
+      of instances in this managed instance group that are scheduled for each
+      of those actions.
     description: An optional description of this resource.
     distributionPolicy: Policy specifying the intended distribution of managed
       instances across zones in a regional managed instance group.
@@ -53327,13 +54467,12 @@ class InstanceGroupManager(_messages.Message):
       order to update the InstanceGroupManager, otherwise the request will
       fail with error412 conditionNotMet.  To see the latest fingerprint, make
       a get() request to retrieve an InstanceGroupManager.
-    id: Output only. [Output Only] A unique identifier for this resource type.
-      The server generates this identifier.
+    id: Output only. A unique identifier for this resource type. The server
+      generates this identifier.
     instanceFlexibilityPolicy: Instance flexibility allowing MIG to create VMs
       from multiple types of machines. Instance flexibility configuration on
       MIG overrides instance template configuration.
-    instanceGroup: Output only. [Output Only] The URL of the Instance Group
-      resource.
+    instanceGroup: Output only. The URL of the Instance Group resource.
     instanceLifecyclePolicy: The repair policy for this managed instance
       group.
     instanceTemplate: The URL of the instance template that is specified for
@@ -53342,7 +54481,7 @@ class InstanceGroupManager(_messages.Message):
       instances in the group do not change unless you run recreateInstances,
       runapplyUpdatesToInstances, or set the group'supdatePolicy.type to
       PROACTIVE.
-    kind: Output only. [Output Only] The resource type, which is
+    kind: Output only. The resource type, which is
       alwayscompute#instanceGroupManager for managed instance groups.
     listManagedInstancesResults: Pagination behavior of the
       listManagedInstances API method for this managed instance group.
@@ -53353,14 +54492,13 @@ class InstanceGroupManager(_messages.Message):
     region: Output only. [Output Only] The URL of theregion where the managed
       instance group resides (for regional resources).
     resourcePolicies: Resource policies for this managed instance group.
-    satisfiesPzi: Output only. [Output Only] Reserved for future use.
-    satisfiesPzs: Output only. [Output Only] Reserved for future use.
-    selfLink: Output only. [Output Only] The URL for this managed instance
-      group. The server defines this URL.
+    satisfiesPzi: Output only. Reserved for future use.
+    satisfiesPzs: Output only. Reserved for future use.
+    selfLink: Output only. The URL for this managed instance group. The server
+      defines this URL.
     standbyPolicy: Standby policy for stopped and suspended instances.
     statefulPolicy: Stateful configuration for this Instanced Group Manager
-    status: Output only. [Output Only] The status of this managed instance
-      group.
+    status: Output only. The status of this managed instance group.
     targetPools: The URLs for all TargetPool resources to which instances in
       theinstanceGroup field are added. The target pools automatically apply
       to all of the instances in the managed instance group.
@@ -53389,8 +54527,8 @@ class InstanceGroupManager(_messages.Message):
       one version must leave thetargetSize field unset. That version will be
       applied to all remaining instances. For more information, read
       aboutcanary updates.
-    zone: Output only. [Output Only] The URL of azone where the managed
-      instance group is located (for zonal resources).
+    zone: Output only. The URL of azone where the managed instance group is
+      located (for zonal resources).
   """
 
   class ListManagedInstancesResultsValueValuesEnum(_messages.Enum):
@@ -53447,54 +54585,47 @@ class InstanceGroupManagerActionsSummary(_messages.Message):
   r"""A InstanceGroupManagerActionsSummary object.
 
   Fields:
-    abandoning: Output only. [Output Only] The total number of instances in
-      the managed instance group that are scheduled to be abandoned.
-      Abandoning an instance removes it from the managed instance group
-      without deleting it.
-    creating: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be created or are currently
-      being created. If the group fails to create any of these instances, it
-      tries again until it creates the instance successfully.  If you have
-      disabled creation retries, this field will not be populated; instead,
-      the creatingWithoutRetries field will be populated.
-    creatingWithoutRetries: Output only. [Output Only] The number of instances
-      that the managed instance group will attempt to create. The group
-      attempts to create each instance only once. If the group fails to create
-      any of these instances, it decreases the group's targetSize value
-      accordingly.
-    deleting: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be deleted or are currently
-      being deleted.
-    none: Output only. [Output Only] The number of instances in the managed
-      instance group that are running and have no scheduled actions.
-    recreating: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be recreated or are
-      currently being being recreated. Recreating an instance deletes the
-      existing root persistent disk and creates a new disk from the image that
-      is defined in the instance template.
-    refreshing: Output only. [Output Only] The number of instances in the
-      managed instance group that are being reconfigured with properties that
-      do not require a restart or a recreate action. For example, setting or
-      removing target pools for the instance.
-    restarting: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be restarted or are
-      currently being restarted.
-    resuming: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be resumed or are currently
-      being resumed.
-    starting: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be started or are currently
-      being started.
-    stopping: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be stopped or are currently
-      being stopped.
-    suspending: Output only. [Output Only] The number of instances in the
-      managed instance group that are scheduled to be suspended or are
-      currently being suspended.
-    verifying: Output only. [Output Only] The number of instances in the
-      managed instance group that are being verified. See the
-      managedInstances[].currentAction property in the listManagedInstances
-      method documentation.
+    abandoning: Output only. The total number of instances in the managed
+      instance group that are scheduled to be abandoned. Abandoning an
+      instance removes it from the managed instance group without deleting it.
+    creating: Output only. The number of instances in the managed instance
+      group that are scheduled to be created or are currently being created.
+      If the group fails to create any of these instances, it tries again
+      until it creates the instance successfully.  If you have disabled
+      creation retries, this field will not be populated; instead, the
+      creatingWithoutRetries field will be populated.
+    creatingWithoutRetries: Output only. The number of instances that the
+      managed instance group will attempt to create. The group attempts to
+      create each instance only once. If the group fails to create any of
+      these instances, it decreases the group's targetSize value accordingly.
+    deleting: Output only. The number of instances in the managed instance
+      group that are scheduled to be deleted or are currently being deleted.
+    none: Output only. The number of instances in the managed instance group
+      that are running and have no scheduled actions.
+    recreating: Output only. The number of instances in the managed instance
+      group that are scheduled to be recreated or are currently being being
+      recreated. Recreating an instance deletes the existing root persistent
+      disk and creates a new disk from the image that is defined in the
+      instance template.
+    refreshing: Output only. The number of instances in the managed instance
+      group that are being reconfigured with properties that do not require a
+      restart or a recreate action. For example, setting or removing target
+      pools for the instance.
+    restarting: Output only. The number of instances in the managed instance
+      group that are scheduled to be restarted or are currently being
+      restarted.
+    resuming: Output only. The number of instances in the managed instance
+      group that are scheduled to be resumed or are currently being resumed.
+    starting: Output only. The number of instances in the managed instance
+      group that are scheduled to be started or are currently being started.
+    stopping: Output only. The number of instances in the managed instance
+      group that are scheduled to be stopped or are currently being stopped.
+    suspending: Output only. The number of instances in the managed instance
+      group that are scheduled to be suspended or are currently being
+      suspended.
+    verifying: Output only. The number of instances in the managed instance
+      group that are being verified. See the managedInstances[].currentAction
+      property in the listManagedInstances method documentation.
   """
 
   abandoning = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -54531,29 +55662,28 @@ class InstanceGroupManagerStatus(_messages.Message):
   r"""A InstanceGroupManagerStatus object.
 
   Fields:
-    allInstancesConfig: Output only. [Output only] Status of all-instances
-      configuration on the group.
-    appliedAcceleratorTopologies: Output only. [Output Only] The accelerator
-      topology applied to this MIG. Currently only one accelerator topology is
+    allInstancesConfig: Output only. Status of all-instances configuration on
+      the group.
+    appliedAcceleratorTopologies: Output only. The accelerator topology
+      applied to this MIG. Currently only one accelerator topology is
       supported.
-    autoscaler: Output only. [Output Only] The URL of theAutoscaler that
-      targets this instance group manager.
-    bulkInstanceOperation: Output only. [Output Only] The status of bulk
-      instance operation.
-    currentInstanceStatuses: Output only. [Output Only] The list of instance
-      statuses and the number of instances in this managed instance group that
-      have the status. Currently only shown for TPU MIGs
-    isStable: Output only. [Output Only] A bit indicating whether the managed
-      instance group is in a stable state. A stable state means that: none of
-      the instances in the managed instance group is currently undergoing any
-      type of change (for example, creation, restart, or deletion); no future
-      changes are scheduled for instances in the managed instance group; and
-      the managed instance group itself is not being modified.
-    stateful: Output only. [Output Only] Stateful status of the given Instance
-      Group Manager.
-    versionTarget: Output only. [Output Only] A status of consistency of
-      Instances' versions with their target version specified by version field
-      on Instance Group Manager.
+    autoscaler: Output only. The URL of theAutoscaler that targets this
+      instance group manager.
+    bulkInstanceOperation: Output only. The status of bulk instance operation.
+    currentInstanceStatuses: Output only. The list of instance statuses and
+      the number of instances in this managed instance group that have the
+      status. Currently only shown for TPU MIGs
+    isStable: Output only. A bit indicating whether the managed instance group
+      is in a stable state. A stable state means that: none of the instances
+      in the managed instance group is currently undergoing any type of change
+      (for example, creation, restart, or deletion); no future changes are
+      scheduled for instances in the managed instance group; and the managed
+      instance group itself is not being modified.
+    stateful: Output only. Stateful status of the given Instance Group
+      Manager.
+    versionTarget: Output only. A status of consistency of Instances' versions
+      with their target version specified by version field on Instance Group
+      Manager.
   """
 
   allInstancesConfig = _messages.MessageField('InstanceGroupManagerStatusAllInstancesConfig', 1)
@@ -54570,20 +55700,18 @@ class InstanceGroupManagerStatusAcceleratorTopology(_messages.Message):
   r"""A InstanceGroupManagerStatusAcceleratorTopology object.
 
   Enums:
-    StateValueValuesEnum: Output only. [Output Only] The state of the
-      accelerator topology.
+    StateValueValuesEnum: Output only. The state of the accelerator topology.
 
   Fields:
-    acceleratorTopology: Output only. [Output Only] Topology in the format of:
-      "16x16", "4x4x4", etc. The value is the same as configured in the
-      WorkloadPolicy.
-    state: Output only. [Output Only] The state of the accelerator topology.
-    stateDetails: Output only. [Output Only] The result of the latest
-      accelerator topology state check.
+    acceleratorTopology: Output only. Topology in the format of: "16x16",
+      "4x4x4", etc. The value is the same as configured in the WorkloadPolicy.
+    state: Output only. The state of the accelerator topology.
+    stateDetails: Output only. The result of the latest accelerator topology
+      state check.
   """
 
   class StateValueValuesEnum(_messages.Enum):
-    r"""Output only. [Output Only] The state of the accelerator topology.
+    r"""Output only. The state of the accelerator topology.
 
     Values:
       ACTIVATING: The accelerator topology is being activated.
@@ -54612,16 +55740,16 @@ class InstanceGroupManagerStatusAcceleratorTopologyAcceleratorTopologyStateDetai
   object.
 
   Messages:
-    ErrorValue: Output only. [Output Only] Encountered errors.
+    ErrorValue: Output only. Encountered errors.
 
   Fields:
-    error: Output only. [Output Only] Encountered errors.
-    timestamp: Output only. [Output Only] Timestamp is shown only if there is
-      an error. The field has // RFC3339 // text format.
+    error: Output only. Encountered errors.
+    timestamp: Output only. Timestamp is shown only if there is an error. The
+      field has // RFC3339 // text format.
   """
 
   class ErrorValue(_messages.Message):
-    r"""Output only. [Output Only] Encountered errors.
+    r"""Output only. Encountered errors.
 
     Messages:
       ErrorsValueListEntry: A ErrorsValueListEntry object.
@@ -54679,10 +55807,10 @@ class InstanceGroupManagerStatusAllInstancesConfig(_messages.Message):
   r"""A InstanceGroupManagerStatusAllInstancesConfig object.
 
   Fields:
-    currentRevision: Output only. [Output Only] Current all-instances
-      configuration revision. This value is in RFC3339 text format.
-    effective: Output only. [Output Only] A bit indicating whether this
-      configuration has been applied to all managed instances in the group.
+    currentRevision: Output only. Current all-instances configuration
+      revision. This value is in RFC3339 text format.
+    effective: Output only. A bit indicating whether this configuration has
+      been applied to all managed instances in the group.
   """
 
   currentRevision = _messages.StringField(1)
@@ -54694,10 +55822,10 @@ class InstanceGroupManagerStatusBulkInstanceOperation(_messages.Message):
   targetSizePolicy.mode is set to BULK.
 
   Fields:
-    inProgress: Output only. [Output Only] Informs whether bulk instance
-      operation is in progress.
-    lastProgressCheck: Output only. [Output Only] Information from the last
-      progress check of bulk instance operation.
+    inProgress: Output only. Informs whether bulk instance operation is in
+      progress.
+    lastProgressCheck: Output only. Information from the last progress check
+      of bulk instance operation.
   """
 
   inProgress = _messages.BooleanField(1)
@@ -54709,19 +55837,17 @@ class InstanceGroupManagerStatusBulkInstanceOperationLastProgressCheck(_messages
   object.
 
   Messages:
-    ErrorValue: Output only. [Output Only] Errors encountered during bulk
-      instance operation.
+    ErrorValue: Output only. Errors encountered during bulk instance
+      operation.
 
   Fields:
-    error: Output only. [Output Only] Errors encountered during bulk instance
-      operation.
-    timestamp: Output only. [Output Only] Timestamp of the last progress check
-      of bulk instance operation. Timestamp is in RFC3339 text format.
+    error: Output only. Errors encountered during bulk instance operation.
+    timestamp: Output only. Timestamp of the last progress check of bulk
+      instance operation. Timestamp is in RFC3339 text format.
   """
 
   class ErrorValue(_messages.Message):
-    r"""Output only. [Output Only] Errors encountered during bulk instance
-    operation.
+    r"""Output only. Errors encountered during bulk instance operation.
 
     Messages:
       ErrorsValueListEntry: A ErrorsValueListEntry object.
@@ -54782,38 +55908,38 @@ class InstanceGroupManagerStatusInstanceStatusSummary(_messages.Message):
   Currently only shown for TPU MIGs.
 
   Fields:
-    deprovisioning: Output only. [Output Only] The number of instances in the
-      managed instance group that have DEPROVISIONING status.
-    nonExistent: Output only. [Output Only] The number of instances that have
-      not been created yet or have been deleted. Includes only instances that
-      would be shown in the listManagedInstances method and not all instances
-      that have been deleted in the lifetime of the MIG. Does not include
-      FlexStart instances that are waiting for the resources availability,
-      they are considered as 'pending'.
-    pending: Output only. [Output Only] The number of instances in the managed
-      instance group that have PENDING status, that is FlexStart instances
-      that are waiting for resources. Instances that do not exist because of
-      the other reasons are counted as 'non_existent'.
-    pendingStop: Output only. [Output Only] The number of instances in the
-      managed instance group that have PENDING_STOP status.
-    provisioning: Output only. [Output Only] The number of instances in the
-      managed instance group that have PROVISIONING status.
-    repairing: Output only. [Output Only] The number of instances in the
-      managed instance group that have REPAIRING status.
-    running: Output only. [Output Only] The number of instances in the managed
-      instance group that have RUNNING status.
-    staging: Output only. [Output Only] The number of instances in the managed
-      instance group that have STAGING status.
-    stopped: Output only. [Output Only] The number of instances in the managed
-      instance group that have STOPPED status.
-    stopping: Output only. [Output Only] The number of instances in the
-      managed instance group that have STOPPING status.
-    suspended: Output only. [Output Only] The number of instances in the
-      managed instance group that have SUSPENDED status.
-    suspending: Output only. [Output Only] The number of instances in the
-      managed instance group that have SUSPENDING status.
-    terminated: Output only. [Output Only] The number of instances in the
-      managed instance group that have TERMINATED status.
+    deprovisioning: Output only. The number of instances in the managed
+      instance group that have DEPROVISIONING status.
+    nonExistent: Output only. The number of instances that have not been
+      created yet or have been deleted. Includes only instances that would be
+      shown in the listManagedInstances method and not all instances that have
+      been deleted in the lifetime of the MIG. Does not include FlexStart
+      instances that are waiting for the resources availability, they are
+      considered as 'pending'.
+    pending: Output only. The number of instances in the managed instance
+      group that have PENDING status, that is FlexStart instances that are
+      waiting for resources. Instances that do not exist because of the other
+      reasons are counted as 'non_existent'.
+    pendingStop: Output only. The number of instances in the managed instance
+      group that have PENDING_STOP status.
+    provisioning: Output only. The number of instances in the managed instance
+      group that have PROVISIONING status.
+    repairing: Output only. The number of instances in the managed instance
+      group that have REPAIRING status.
+    running: Output only. The number of instances in the managed instance
+      group that have RUNNING status.
+    staging: Output only. The number of instances in the managed instance
+      group that have STAGING status.
+    stopped: Output only. The number of instances in the managed instance
+      group that have STOPPED status.
+    stopping: Output only. The number of instances in the managed instance
+      group that have STOPPING status.
+    suspended: Output only. The number of instances in the managed instance
+      group that have SUSPENDED status.
+    suspending: Output only. The number of instances in the managed instance
+      group that have SUSPENDING status.
+    terminated: Output only. The number of instances in the managed instance
+      group that have TERMINATED status.
   """
 
   deprovisioning = _messages.IntegerField(1, variant=_messages.Variant.INT32)
@@ -54835,14 +55961,14 @@ class InstanceGroupManagerStatusStateful(_messages.Message):
   r"""A InstanceGroupManagerStatusStateful object.
 
   Fields:
-    hasStatefulConfig: Output only. [Output Only] A bit indicating whether the
-      managed instance group has stateful configuration, that is, if you have
+    hasStatefulConfig: Output only. A bit indicating whether the managed
+      instance group has stateful configuration, that is, if you have
       configured any items in a stateful policy or in per-instance configs.
       The group might report that it has no stateful configuration even when
       there is still some preserved state on a managed instance, for example,
       if you have deleted all PICs but not yet applied those deletions.
-    perInstanceConfigs: Output only. [Output Only] Status of per-instance
-      configurations on the instances.
+    perInstanceConfigs: Output only. Status of per-instance configurations on
+      the instances.
   """
 
   hasStatefulConfig = _messages.BooleanField(1)
@@ -54866,10 +55992,10 @@ class InstanceGroupManagerStatusVersionTarget(_messages.Message):
   r"""A InstanceGroupManagerStatusVersionTarget object.
 
   Fields:
-    isReached: Output only. [Output Only] A bit indicating whether version
-      target has been reached in this managed instance group, i.e. all
-      instances are in their target version. Instances' target version are
-      specified byversion field on Instance Group Manager.
+    isReached: Output only. A bit indicating whether version target has been
+      reached in this managed instance group, i.e. all instances are in their
+      target version. Instances' target version are specified byversion field
+      on Instance Group Manager.
   """
 
   isReached = _messages.BooleanField(1)
@@ -66034,6 +67160,8 @@ class NetworkAttachmentConnectedEndpoint(_messages.Message):
     projectIdOrNum: The project id or number of the interface to which the IP
       was assigned.
     secondaryIpCidrRanges: Alias IP ranges from the same subnetwork.
+    serviceClassId: The service class id of the producer service to which the
+      IP was assigned.
     status: The status of a connected endpoint to this network attachment.
     subnetwork: The subnetwork used to assign the IP to the producer instance
       network interface.
@@ -66067,9 +67195,10 @@ class NetworkAttachmentConnectedEndpoint(_messages.Message):
   ipv6Address = _messages.StringField(2)
   projectIdOrNum = _messages.StringField(3)
   secondaryIpCidrRanges = _messages.StringField(4, repeated=True)
-  status = _messages.EnumField('StatusValueValuesEnum', 5)
-  subnetwork = _messages.StringField(6)
-  subnetworkCidrRange = _messages.StringField(7)
+  serviceClassId = _messages.StringField(5)
+  status = _messages.EnumField('StatusValueValuesEnum', 6)
+  subnetwork = _messages.StringField(7)
+  subnetworkCidrRange = _messages.StringField(8)
 
 
 class NetworkAttachmentList(_messages.Message):
@@ -68184,6 +69313,10 @@ class NetworkInterface(_messages.Message):
     queueCount: The networking queue count that's specified by users for the
       network interface. Both Rx and Tx queues will be set to this number.
       It'll be empty if not specified by the users.
+    serviceClassId: Optional. Producer Service's Service class Id for the
+      region of this network interface. Can only be used with
+      network_attachment. It is not possible to use on its own however,
+      network_attachment can be used without service_class_id.
     stackType: The stack type for this network interface. To assign only IPv4
       addresses, use IPV4_ONLY. To assign both IPv4 and IPv6 addresses,
       useIPV4_IPV6. If not specified, IPV4_ONLY is used.  This field can be
@@ -68274,9 +69407,10 @@ class NetworkInterface(_messages.Message):
   nicType = _messages.EnumField('NicTypeValueValuesEnum', 15)
   parentNicName = _messages.StringField(16)
   queueCount = _messages.IntegerField(17, variant=_messages.Variant.INT32)
-  stackType = _messages.EnumField('StackTypeValueValuesEnum', 18)
-  subnetwork = _messages.StringField(19)
-  vlan = _messages.IntegerField(20, variant=_messages.Variant.INT32)
+  serviceClassId = _messages.StringField(18)
+  stackType = _messages.EnumField('StackTypeValueValuesEnum', 19)
+  subnetwork = _messages.StringField(20)
+  vlan = _messages.IntegerField(21, variant=_messages.Variant.INT32)
 
 
 class NetworkList(_messages.Message):
@@ -77684,6 +78818,21 @@ class RegionDiskTypeList(_messages.Message):
   nextPageToken = _messages.StringField(4)
   selfLink = _messages.StringField(5)
   warning = _messages.MessageField('WarningValue', 6)
+
+
+class RegionDiskUpdateKmsKeyRequest(_messages.Message):
+  r"""A RegionDiskUpdateKmsKeyRequest object.
+
+  Fields:
+    kmsKeyName: Optional. The new KMS key to replace the current one on the
+      disk. If empty, the disk will be re-encrypted using the primary version
+      of the disk's current KMS key.  The KMS key can be provided in the
+      following formats:              -
+      projects/project_id/locations/location/keyRings/key_ring/cryptoKeys/key
+      Where project is the project ID or project number.
+  """
+
+  kmsKeyName = _messages.StringField(1)
 
 
 class RegionDisksAddResourcePoliciesRequest(_messages.Message):
@@ -89047,6 +90196,20 @@ class SnapshotSettingsStorageLocationSettingsStorageLocationPreference(_messages
   """
 
   name = _messages.StringField(1)
+
+
+class SnapshotUpdateKmsKeyRequest(_messages.Message):
+  r"""A SnapshotUpdateKmsKeyRequest object.
+
+  Fields:
+    kmsKeyName: Optional. The new KMS key to replace the current one on the
+      snapshot. If empty, the snapshot will be re-encrypted using the primary
+      version of the snapshot's current KMS key.  The KMS key can be provided
+      in the following formats:              -
+      projects/project_id/locations/region/keyRings/key_ring/cryptoKeys/key
+  """
+
+  kmsKeyName = _messages.StringField(1)
 
 
 class SourceDiskEncryptionKey(_messages.Message):
